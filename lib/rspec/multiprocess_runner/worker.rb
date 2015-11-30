@@ -55,7 +55,7 @@ module RSpec::MultiprocessRunner
         @coordinator_socket.close
         @pid = Process.pid
         ENV["TEST_ENV_NUMBER"] = environment_number.to_s
-        $0 = "RSpec::MultiprocessRunner::Worker #{environment_number}"
+        set_process_name
         run_loop
       end
     end
@@ -164,6 +164,12 @@ module RSpec::MultiprocessRunner
 
     private
 
+    def set_process_name
+      name = "RSpec::MultiprocessRunner::Worker #{environment_number}"
+      status = current_file ? "running #{current_file}" : "idle"
+      $0 = "#{name} #{status}"
+    end
+
     def run_loop
       loop do
         select_result = IO.select([@worker_socket], nil, nil, 1)
@@ -193,12 +199,17 @@ module RSpec::MultiprocessRunner
       else
         $stderr.puts "Received unsupported command #{message_hash["command"].inspect} in worker #{pid}"
       end
+      set_process_name
     end
 
     def execute_spec(spec_file)
+      @current_file = spec_file
+      set_process_name
       ReportingFormatter.worker = self
       RSpec::Core::Runner.run(@rspec_arguments + [spec_file])
       send_message_to_coordinator(status: STATUS_RUN_COMPLETE, filename: spec_file)
+    ensure
+      @current_file = nil
     end
 
     ###### UTILITY FUNCTIONS
