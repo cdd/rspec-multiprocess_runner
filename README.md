@@ -36,7 +36,29 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Command line
+
+Use `multiprocess_rspec` to run a bunch of spec files:
+
+    $ multiprocess_rspec 8 specs/*_spec.rb
+
+The first argument is the number of processes to run. The remaining arguments
+are names of spec files or directories containing spec files. To pass arguments
+to the RSpec runner, use the `SPEC_OPTS` environment variable or the `.rspec`
+file.
+
+### Code
+
+Create a coordinator and tell it to run:
+
+    require 'rspec/multiprocess_runner/coordinator'
+
+    process_count = 4
+    rspec_args = %w(--backtrace)
+    files = Dir['**/*_spec.rb']
+
+    coordinator = RSpec::MultiprocessRunner::Coordinator(process_count, rspec_args, files)
+    coordinator.run
 
 ## How it works
 
