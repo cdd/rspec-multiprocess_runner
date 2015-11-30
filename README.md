@@ -9,6 +9,9 @@ the workers, hand off work to them, and receive results. This means it can
 dynamically balance the workload among the processors. It also means it can
 provide consolidated results in the console.
 
+It does follow parallel-tests' `TEST_ENV_NUMBER` convention so it's easy to
+switch.
+
 ## Limitations
 
 * Only tested with RSpec 2. Probably does not work with RSpec 3, so it is
