@@ -16,7 +16,7 @@ module RSpec::MultiprocessRunner
   # - In the worker process, it is used to send messages to the coordinator and
   #   actually run specs.
   class Worker
-    attr_reader :pid, :environment_number
+    attr_reader :pid, :environment_number, :example_results, :current_file
     attr_accessor :deactivation_reason
 
     COMMAND_QUIT = "quit"
@@ -30,6 +30,7 @@ module RSpec::MultiprocessRunner
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :DGRAM, PROTOCOL_VERSION)
       @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
       @file_timeout = 3
+      @example_results = []
     end
 
     ##
@@ -125,6 +126,7 @@ module RSpec::MultiprocessRunner
         @current_file = nil
         @current_file_started_at = nil
       when STATUS_EXAMPLE_COMPLETE
+        example_results << ExampleResult.new(message_hash)
         suffix =
           case message_hash["example_status"]
           when "failed"
@@ -211,6 +213,18 @@ module RSpec::MultiprocessRunner
 
     def send_message(socket, message_hash)
       socket.send(message_hash.to_json, PROTOCOL_VERSION)
+    end
+  end
+
+  # @private
+  class ExampleResult
+    attr_reader :status, :description, :details, :time_finished
+
+    def initialize(example_complete_message)
+      @status = example_complete_message["example_status"]
+      @description = example_complete_message["description"]
+      @details = example_complete_message["details"]
+      @time_finished = Time.now
     end
   end
 end
