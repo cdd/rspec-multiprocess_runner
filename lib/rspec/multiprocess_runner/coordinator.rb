@@ -11,7 +11,6 @@ module RSpec::MultiprocessRunner
     end
 
     def run
-      $stderr.puts @spec_files.inspect
       @workers.each do |worker|
         unless @spec_files.empty?
           worker.start
@@ -34,14 +33,16 @@ module RSpec::MultiprocessRunner
 
     def run_loop
       loop do
-        break if @spec_files.empty?
         select_result = IO.select(worker_sockets, nil, nil, 5)
         if select_result
           first_readable = select_result.first.first
           ready_worker = @workers.detect { |worker| worker.socket == first_readable }
           ready_worker.receive_and_act_on_message_from_worker
-          ready_worker.run_file(@spec_files.shift)
+          if !@spec_files.empty? && !ready_worker.working?
+            ready_worker.run_file(@spec_files.shift)
+          end
         end
+        break unless @workers.detect(&:working?)
         # TODO: reap stalled workers, etc.
       end
     end

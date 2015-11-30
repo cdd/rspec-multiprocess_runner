@@ -1,21 +1,33 @@
 require "rspec/multiprocess_runner"
+require "rspec/multiprocess_runner/reporting_formatter"
+
+require "rspec/core"
 require "rspec/core/runner"
+
 require "socket"
 require "json"
 
 module RSpec::MultiprocessRunner
+  ##
+  # This object has several roles:
+  # - It forks the worker process
+  # - In the coordinator process, it is used to send messages to the worker and
+  #   track the worker's status.
+  # - In the worker process, it is used to send messages to the coordinator and
+  #   actually run specs.
   class Worker
     attr_reader :pid, :environment_number
 
     COMMAND_QUIT = "quit"
     COMMAND_RUN_FILE = "run_file"
 
-    STATUS_RUN_COMPLETE = "complete"
+    STATUS_EXAMPLE_COMPLETE = "example_complete"
+    STATUS_RUN_COMPLETE = "run_complete"
 
-    def initialize(environment_number, rspec_options)
+    def initialize(environment_number, rspec_arguments=[])
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :DGRAM, PROTOCOL_VERSION)
-      @rspec_options = rspec_options
+      @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
     end
 
     ##
@@ -92,6 +104,18 @@ module RSpec::MultiprocessRunner
       when STATUS_RUN_COMPLETE
         @current_file = nil
         @current_file_started_at = nil
+      when STATUS_EXAMPLE_COMPLETE
+        suffix =
+          case message_hash["example_status"]
+          when "failed"
+            " - FAILED"
+          when "pending"
+            " - pending"
+          end
+        if message_hash["details"]
+          suffix += "\n#{message_hash["details"]}"
+        end
+        $stdout.puts "#{environment_number} (#{pid}): #{message_hash["description"]}#{suffix}"
       else
         $stderr.puts "Received unsupported status #{message_hash["status"].inspect} in worker #{pid}"
       end
@@ -104,6 +128,17 @@ module RSpec::MultiprocessRunner
     ###### WORKER METHODS
     ## These are methods that the worker process calls on the copy of this
     ## object that lives in the fork.
+
+    public
+
+    def report_example_result(example_status, description, details)
+      send_message_to_coordinator(
+        status: STATUS_EXAMPLE_COMPLETE,
+        example_status: example_status,
+        description: description,
+        details: details
+      )
+    end
 
     private
 
@@ -139,8 +174,8 @@ module RSpec::MultiprocessRunner
     end
 
     def execute_spec(spec_file)
-      $stderr.puts "#{environment_number} (#{pid}): Here is where I would execute #{spec_file}"
-      sleep(rand)
+      ReportingFormatter.worker = self
+      RSpec::Core::Runner.run(@rspec_arguments + [spec_file])
       send_message_to_coordinator(status: STATUS_RUN_COMPLETE, filename: spec_file)
     end
 
