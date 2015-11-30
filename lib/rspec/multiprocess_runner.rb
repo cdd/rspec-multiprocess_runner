@@ -7,6 +7,6 @@ module RSpec
     PROTOCOL_VERSION = 0
     # Another element of the datagram protocol — needs to be longer than the
     # maximum size (in bytes) of any message.
-    MESSAGE_MAX_LENGTH = 1000
+    MESSAGE_MAX_LENGTH = 2**16
   end
 end

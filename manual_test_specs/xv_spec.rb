@@ -1,6 +1,6 @@
 describe 'xv' do
-  it 'works' do
-    sleep rand
-    expect(2 + 2).to eq(4)
+  it 'works' do    
+    # Kills the unfortunate worker that tries to run it
+    Process.kill(:KILL, Process.pid)
   end
 end

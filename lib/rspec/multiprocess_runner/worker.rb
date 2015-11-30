@@ -12,11 +12,12 @@ module RSpec::MultiprocessRunner
   # This object has several roles:
   # - It forks the worker process
   # - In the coordinator process, it is used to send messages to the worker and
-  #   track the worker's status.
+  #   track the worker's status, completed specs, and example results.
   # - In the worker process, it is used to send messages to the coordinator and
   #   actually run specs.
   class Worker
     attr_reader :pid, :environment_number
+    attr_accessor :deactivation_reason
 
     COMMAND_QUIT = "quit"
     COMMAND_RUN_FILE = "run_file"
@@ -28,6 +29,7 @@ module RSpec::MultiprocessRunner
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :DGRAM, PROTOCOL_VERSION)
       @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
+      @file_timeout = 3
     end
 
     ##
@@ -87,6 +89,24 @@ module RSpec::MultiprocessRunner
 
     def working?
       @current_file
+    end
+
+    def stalled?
+      working? && (Time.now - @current_file_started_at > @file_timeout)
+    end
+
+    def reap
+      begin
+        Timeout.timeout(4) do
+          $stderr.puts "Reaping troubled process #{environment_number} (#{pid}; #{@current_file}) with QUIT"
+          Process.kill(:QUIT, pid)
+          Process.wait(pid)
+        end
+      rescue Timeout::Error
+        $stderr.puts "Reaping troubled process #{environment_number} (#{pid}) with KILL"
+        Process.kill(:KILL, pid)
+        Process.wait(pid)
+      end
     end
 
     def receive_and_act_on_message_from_worker
