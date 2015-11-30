@@ -66,7 +66,7 @@ Create a coordinator and tell it to run:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rspec-multiprocess_runner.
+Bug reports and pull requests are welcome on GitHub at https://github.com/cdd/rspec-multiprocess_runner.
 
 
 ## License
