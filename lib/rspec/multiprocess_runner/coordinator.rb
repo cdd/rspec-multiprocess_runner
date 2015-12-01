@@ -107,11 +107,8 @@ module RSpec::MultiprocessRunner
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
         (idx[result.status] ||= []) << result
       end
-      puts
       print_pending_example_details(by_status_and_time["pending"])
-      puts
       print_failed_example_details(by_status_and_time["failed"])
-      puts
       print_failed_process_details
       puts
       puts failed? ? "FAILURE" : "SUCCESS"
@@ -128,6 +125,7 @@ module RSpec::MultiprocessRunner
 
     def print_pending_example_details(pending_example_results)
       return if pending_example_results.nil?
+      puts
       puts "Pending:"
       pending_example_results.each do |pending|
         puts
@@ -137,6 +135,7 @@ module RSpec::MultiprocessRunner
 
     def print_failed_example_details(failed_example_results)
       return if failed_example_results.nil?
+      puts
       puts "Failures:"
       failed_example_results.each_with_index do |failure, i|
         puts
@@ -166,6 +165,7 @@ module RSpec::MultiprocessRunner
 
     def print_failed_process_details
       return if @deactivated_workers.empty?
+      puts
       puts "Failed processes:"
       @deactivated_workers.each do |worker|
         puts "  - #{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
