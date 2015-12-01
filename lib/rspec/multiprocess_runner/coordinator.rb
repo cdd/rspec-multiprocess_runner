@@ -54,13 +54,11 @@ module RSpec::MultiprocessRunner
       while (select_result = IO.select(worker_sockets, nil, nil, timeout))
         select_result.first.each do |readable_socket|
           ready_worker = @workers.detect { |worker| worker.socket == readable_socket }
-          begin
-            ready_worker.receive_and_act_on_message_from_worker
-            if work_left_to_do? && !ready_worker.working?
-              ready_worker.run_file(@spec_files.shift)
-            end
-          rescue Errno::ECONNRESET
+          worker_status = ready_worker.receive_and_act_on_message_from_worker
+          if worker_status == :dead
             reap_one_worker(ready_worker, "died")
+          elsif work_left_to_do? && !ready_worker.working?
+            ready_worker.run_file(@spec_files.shift)
           end
         end
       end

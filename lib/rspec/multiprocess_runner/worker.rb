@@ -29,7 +29,7 @@ module RSpec::MultiprocessRunner
 
     def initialize(environment_number, file_timeout, rspec_arguments=[])
       @environment_number = environment_number
-      @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :DGRAM, PROTOCOL_VERSION)
+      @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :STREAM)
       @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
       @file_timeout = file_timeout
       @example_results = []
@@ -129,6 +129,7 @@ module RSpec::MultiprocessRunner
     end
 
     def act_on_message_from_worker(message_hash)
+      return :dead unless message_hash # ignore EOF
       case message_hash["status"]
       when STATUS_RUN_COMPLETE
         @current_file = nil
@@ -149,6 +150,7 @@ module RSpec::MultiprocessRunner
       else
         $stderr.puts "Received unsupported status #{message_hash["status"].inspect} in worker #{pid}"
       end
+      return :alive
     end
 
     def send_message_to_worker(message_hash)
@@ -199,6 +201,7 @@ module RSpec::MultiprocessRunner
     end
 
     def act_on_message_from_coordinator(message_hash)
+      return unless message_hash # ignore EOF
       case message_hash["command"]
       when "quit"
         exit
@@ -232,12 +235,14 @@ module RSpec::MultiprocessRunner
     private
 
     def receive_message(socket)
-      message_json = socket.recv(MESSAGE_MAX_LENGTH, PROTOCOL_VERSION)
-      JSON.parse(message_json)
+      message_json = socket.gets
+      if message_json
+        JSON.parse(message_json)
+      end
     end
 
     def send_message(socket, message_hash)
-      socket.send(message_hash.to_json, PROTOCOL_VERSION)
+      socket.puts(message_hash.to_json)
     end
   end
 
