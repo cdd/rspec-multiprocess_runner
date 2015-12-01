@@ -13,6 +13,6 @@ spec_files = ARGV[1..-1].flat_map do |filename|
   end
 end
 
-success = RSpec::MultiprocessRunner::Coordinator.new(process_count, [], spec_files).run
+success = RSpec::MultiprocessRunner::Coordinator.new(process_count, 300, [], spec_files).run
 
 exit(success ? 0 : 1)

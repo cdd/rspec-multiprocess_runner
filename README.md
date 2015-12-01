@@ -54,10 +54,11 @@ Create a coordinator and tell it to run:
     require 'rspec/multiprocess_runner/coordinator'
 
     process_count = 4
+    per_file_timeout = 5 * 60    # 5 minutes in seconds
     rspec_args = %w(--backtrace)
     files = Dir['**/*_spec.rb']
 
-    coordinator = RSpec::MultiprocessRunner::Coordinator(process_count, rspec_args, files)
+    coordinator = RSpec::MultiprocessRunner::Coordinator(process_count, per_file_timeout, rspec_args, files)
     coordinator.run
 
 ## How it works

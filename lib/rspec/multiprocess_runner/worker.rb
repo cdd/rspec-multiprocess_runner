@@ -27,11 +27,11 @@ module RSpec::MultiprocessRunner
     STATUS_EXAMPLE_COMPLETE = "example_complete"
     STATUS_RUN_COMPLETE = "run_complete"
 
-    def initialize(environment_number, rspec_arguments=[])
+    def initialize(environment_number, file_timeout, rspec_arguments=[])
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :DGRAM, PROTOCOL_VERSION)
       @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
-      @file_timeout = 3
+      @file_timeout = file_timeout
       @example_results = []
     end
 
