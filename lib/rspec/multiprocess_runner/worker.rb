@@ -33,6 +33,12 @@ module RSpec::MultiprocessRunner
       @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
       @file_timeout = file_timeout
       @example_results = []
+
+      # Use a single configuration and world across all individual runs
+      # This will not be necessary to do manually in RSpec 3 — it does not
+      # reset the globals after each run.
+      @rspec_configuration = RSpec.configuration
+      @rspec_world = RSpec.world
     end
 
     ##
@@ -207,6 +213,12 @@ module RSpec::MultiprocessRunner
     def execute_spec(spec_file)
       @current_file = spec_file
       set_process_name
+
+      RSpec.configuration = @rspec_configuration
+      RSpec.world = @rspec_world
+      # If we don't do this, every previous spec is run every time run is called
+      RSpec.world.example_groups.clear
+
       ReportingFormatter.worker = self
       RSpec::Core::Runner.run(@rspec_arguments + [spec_file])
       send_message_to_coordinator(status: STATUS_RUN_COMPLETE, filename: spec_file)

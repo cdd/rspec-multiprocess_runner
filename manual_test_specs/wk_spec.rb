@@ -1,6 +1,8 @@
+require File.expand_path('../spec_helper', __FILE__)
+
 describe 'wk' do
   it 'works' do
-    sleep rand
-    expect(2 + 2).to eq(4)
+    # Tests that the config from spec_helper remains available across runs
+    expect(test_sum(3, 6)).to eq(9)
   end
 end
