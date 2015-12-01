@@ -106,14 +106,15 @@ module RSpec::MultiprocessRunner
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
         (idx[result.status] ||= []) << result
       end
+      puts
       print_pending_example_details(by_status_and_time["pending"])
       puts
       print_failed_example_details(by_status_and_time["failed"])
       puts
+      print_failed_process_details
+      puts
       puts failed? ? "FAILURE" : "SUCCESS"
       print_example_counts(by_status_and_time)
-      puts
-      print_failed_process_details
     end
 
     def combine_example_results
