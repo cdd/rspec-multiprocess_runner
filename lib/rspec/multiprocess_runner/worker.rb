@@ -1,3 +1,4 @@
+# encoding: utf-8
 require "rspec/multiprocess_runner"
 require "rspec/multiprocess_runner/reporting_formatter"
 
@@ -6,6 +7,7 @@ require "rspec/core/runner"
 
 require "socket"
 require "json"
+require "timeout"
 
 module RSpec::MultiprocessRunner
   ##

@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'rspec/multiprocess_runner'
 require 'rspec/core/formatters/base_text_formatter'
 
