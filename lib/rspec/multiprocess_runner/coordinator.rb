@@ -14,6 +14,7 @@ module RSpec::MultiprocessRunner
     end
 
     def run
+      @start_time = Time.now
       expected_process_numbers.each do |n|
         create_and_start_worker_if_necessary(n)
       end
@@ -102,6 +103,7 @@ module RSpec::MultiprocessRunner
     end
 
     def print_summary
+      elapsed = Time.now - @start_time
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
         (idx[result.status] ||= []) << result
       end
@@ -109,6 +111,7 @@ module RSpec::MultiprocessRunner
       print_failed_example_details(by_status_and_time["failed"])
       print_failed_process_details
       puts
+      print_elapsed_time(elapsed)
       puts failed? ? "FAILURE" : "SUCCESS"
       print_example_counts(by_status_and_time)
     end
@@ -168,6 +171,20 @@ module RSpec::MultiprocessRunner
       @deactivated_workers.each do |worker|
         puts "  - #{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
       end
+    end
+
+    def print_elapsed_time(seconds_elapsed)
+      minutes = seconds_elapsed.to_i / 60
+      seconds = seconds_elapsed % 60
+      m =
+        if minutes > 0
+          "%d minute%s" % [minutes, minutes == 1 ? '' : 's']
+        end
+      s =
+        if seconds > 0
+          "%.2f second%s" % [seconds, seconds == 1 ? '' : 's']
+        end
+      puts "Finished in #{[m, s].compact.join(", ")}"
     end
   end
 end
