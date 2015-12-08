@@ -19,10 +19,7 @@ module RSpec::MultiprocessRunner
         create_and_start_worker_if_necessary(n)
       end
       run_loop
-      @workers.each do |worker|
-        worker.quit
-        worker.wait_until_quit
-      end
+      quit_all_workers
       print_summary
 
       !failed?
@@ -45,6 +42,16 @@ module RSpec::MultiprocessRunner
         start_missing_workers
         break unless @workers.detect(&:working?)
       end
+    end
+
+    def quit_all_workers
+      quit_threads = @workers.map do |worker|
+        Thread.new do
+          worker.quit
+          worker.wait_until_quit
+        end
+      end
+      quit_threads.each(&:join)
     end
 
     def work_left_to_do?
