@@ -4,8 +4,8 @@ require 'rspec/multiprocess_runner/worker'
 
 module RSpec::MultiprocessRunner
   class Coordinator
-    def initialize(process_count, file_timeout, rspec_options, files)
-      @process_count = process_count
+    def initialize(worker_count, file_timeout, rspec_options, files)
+      @worker_count = worker_count
       @file_timeout = file_timeout
       @rspec_options = rspec_options
       @spec_files = files
@@ -15,7 +15,7 @@ module RSpec::MultiprocessRunner
 
     def run
       @start_time = Time.now
-      expected_process_numbers.each do |n|
+      expected_worker_numbers.each do |n|
         create_and_start_worker_if_necessary(n)
       end
       run_loop
@@ -85,8 +85,8 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    def expected_process_numbers
-      (1..@process_count).to_a
+    def expected_worker_numbers
+      (1..@worker_count).to_a
     end
 
     def create_and_start_worker_if_necessary(n)
@@ -100,9 +100,9 @@ module RSpec::MultiprocessRunner
     end
 
     def start_missing_workers
-      if @workers.size < @process_count && work_left_to_do?
+      if @workers.size < @worker_count && work_left_to_do?
         running_process_numbers = @workers.map(&:environment_number)
-        missing_process_numbers = expected_process_numbers - running_process_numbers
+        missing_process_numbers = expected_worker_numbers - running_process_numbers
         missing_process_numbers.each do |n|
           create_and_start_worker_if_necessary(n)
         end

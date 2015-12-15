@@ -9,7 +9,7 @@ module RSpec::MultiprocessRunner
     describe '#parse' do
       shared_examples "the default timeout time and number of processes" do
         it "uses 3 processes" do
-          expect(parsed.process_count).to eq(3)
+          expect(parsed.worker_count).to eq(3)
         end
 
         it "has a per-file timeout of 5 minutes" do
@@ -57,10 +57,10 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-c 12 --file-timeout 1200) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200) }
 
         it "has the process count" do
-          expect(parsed.process_count).to eq(12)
+          expect(parsed.worker_count).to eq(12)
         end
 
         it "has the timeout time" do
@@ -102,7 +102,7 @@ module RSpec::MultiprocessRunner
       describe "with RSpec options and files and everything" do
         let(:arguments) {
           %w(
-            --process-count 8
+            --worker-count 8
             -t 250
             spec/models/ear_spec.rb
             spec/helpers
@@ -113,7 +113,7 @@ module RSpec::MultiprocessRunner
         }
 
         it "has the process count" do
-          expect(parsed.process_count).to eq(8)
+          expect(parsed.worker_count).to eq(8)
         end
 
         it "has the timeout" do

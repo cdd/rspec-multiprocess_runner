@@ -7,7 +7,7 @@ options = RSpec::MultiprocessRunner::CommandLineOptions.new.parse(ARGV.dup)
 exit(2) unless options
 
 success = RSpec::MultiprocessRunner::Coordinator.new(
-  options.process_count,
+  options.worker_count,
   options.file_timeout_seconds,
   options.rspec_options,
   options.files_to_run

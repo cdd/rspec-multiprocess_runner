@@ -42,13 +42,13 @@ Use `multirspec` to run a bunch of spec files:
 
     $ multirspec spec
 
-Runs three processes by default — use `-c` to chose another count. `--help` will
+Runs three workers by default — use `-w` to chose another count. `--help` will
 detail the other options.
 
 You can provide options that will be passed to the separate RSpec processes by
 including them after a `--`:
 
-    $ multirspec -c 5 spec -- -b -I ./lib
+    $ multirspec -w 5 spec -- -b -I ./lib
 
 In this case, each RSpec process would receive the options `-b -I ./lib`. Note
 that not that many RSpec options really make sense to pass this way. In
@@ -61,12 +61,12 @@ Create a coordinator and tell it to run:
 
     require 'rspec/multiprocess_runner/coordinator'
 
-    process_count = 4
+    worker_count = 4
     per_file_timeout = 5 * 60    # 5 minutes in seconds
     rspec_args = %w(--backtrace)
     files = Dir['**/*_spec.rb']
 
-    coordinator = RSpec::MultiprocessRunner::Coordinator(process_count, per_file_timeout, rspec_args, files)
+    coordinator = RSpec::MultiprocessRunner::Coordinator(worker_count, per_file_timeout, rspec_args, files)
     coordinator.run
 
 ## How it works

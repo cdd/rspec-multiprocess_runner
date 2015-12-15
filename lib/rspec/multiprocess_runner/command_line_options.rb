@@ -5,11 +5,11 @@ require 'pathname'
 module RSpec::MultiprocessRunner
   # @private
   class CommandLineOptions
-    attr_accessor :process_count, :file_timeout_seconds, :rspec_options,
+    attr_accessor :worker_count, :file_timeout_seconds, :rspec_options,
       :explicit_files_or_directories, :pattern
 
     def initialize
-      self.process_count = 3
+      self.worker_count = 3
       self.file_timeout_seconds = 300
       self.pattern = "**/*_spec.rb"
       self.rspec_options = []
@@ -62,8 +62,8 @@ module RSpec::MultiprocessRunner
       OptionParser.new do |parser|
         parser.banner = "#{File.basename $0} [options] [files or directories] [-- rspec options]"
 
-        parser.on("-c", "--process-count COUNT", Integer, "Number of processes to run (default: #{process_count})") do |n|
-          self.process_count = n
+        parser.on("-w", "--worker-count COUNT", Integer, "Number of workers to run (default: #{worker_count})") do |n|
+          self.worker_count = n
         end
 
         parser.on("-t", "--file-timeout SECONDS", Integer, "Maximum time to allow any single file to run (default: #{file_timeout_seconds})") do |s|
