@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'rspec/multiprocess_runner/command_line_options'
+require 'rspec/multiprocess_runner/coordinator'
+
+options = RSpec::MultiprocessRunner::CommandLineOptions.new.parse(ARGV.dup)
+exit(2) unless options
+
+success = RSpec::MultiprocessRunner::Coordinator.new(
+  options.process_count,
+  options.file_timeout_seconds,
+  options.rspec_options,
+  options.files_to_run
+).run
+
+exit(success ? 0 : 1)

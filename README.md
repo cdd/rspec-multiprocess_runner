@@ -38,14 +38,22 @@ Or install it yourself as:
 
 ### Command line
 
-Use `multiprocess_rspec` to run a bunch of spec files:
+Use `multirspec` to run a bunch of spec files:
 
-    $ multiprocess_rspec 8 specs/*_spec.rb
+    $ multirspec spec
 
-The first argument is the number of processes to run. The remaining arguments
-are names of spec files or directories containing spec files. To pass arguments
-to the RSpec runner, use the `SPEC_OPTS` environment variable or the `.rspec`
-file.
+Runs three processes by default — use `-c` to chose another count. `--help` will
+detail the other options.
+
+You can provide options that will be passed to the separate RSpec processes by
+including them after a `--`:
+
+    $ multirspec -c 5 spec -- -b -I ./lib
+
+In this case, each RSpec process would receive the options `-b -I ./lib`. Note
+that not that many RSpec options really make sense to pass this way. In
+particular, file selection and output formatting options are unlikely to work
+the way you expect.
 
 ### Code
 
