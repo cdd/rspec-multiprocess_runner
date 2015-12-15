@@ -12,11 +12,30 @@ provide consolidated results in the console.
 It does follow parallel-tests' `TEST_ENV_NUMBER` convention so it's easy to
 switch.
 
+## Benefits
+
+* Running slow (IO-bound) specs in parallel can greatly reduce the wall-clock
+  time needed to run a suite. Even CPU-bound specs can be aided
+* Provides detailed logging of each example as it completes, including the
+  failure message (you don't have to wait until the end to see the failure
+  reason).
+* Detects, kills, and reports spec files that take longer than expected (five
+  minutes by default).
+* Detects and reports spec files that crash (without interrupting the
+  remainder of the suite).
+
 ## Limitations
 
-* Only tested with RSpec 2. Probably does not work with RSpec 3, so it is
-  excluded in the gemspec.
-* Spike-quality code. If this actually works I'll make it better.
+* Only works with RSpec 2. Does not work with RSpec 3.
+* Does not work on Windows or JRuby. Since it relies on `fork(2)`, it probably
+  never will.
+* Does not support RSpec custom formatters.
+* The built-in output format is very verbose — it's intended for CI servers,
+  where more logging is better.
+* Intermediate-quality code. Happy path works, and workers are
+  managed/restarted, but:
+  * There's no test coverage of the runner itself, only auxiliaries.
+  * Does not handle the coordinator process dying (e.g., from `^C`).
 
 ## Installation
 
@@ -55,6 +74,19 @@ that not that many RSpec options really make sense to pass this way. In
 particular, file selection and output formatting options are unlikely to work
 the way you expect.
 
+### Rake
+
+There is a rake task wrapper for `multirspec`:
+
+    require 'rspec/multiprocess_runner/rake_task'
+
+    RSpec::MultiprocessRunner::RakeTask.new(:spec) do |t|
+      t.worker_count = 5
+      t.pattern = "spec/**/*_spec.rb"
+    end
+
+See its source for the full list of options.
+
 ### Code
 
 Create a coordinator and tell it to run:
@@ -68,10 +100,6 @@ Create a coordinator and tell it to run:
 
     coordinator = RSpec::MultiprocessRunner::Coordinator(worker_count, per_file_timeout, rspec_args, files)
     coordinator.run
-
-## How it works
-
-
 
 ## Contributing
 
