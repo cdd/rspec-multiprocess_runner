@@ -5,7 +5,7 @@ require 'rspec/multiprocess_runner/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "rspec-multiprocess_runner"
-  spec.version       = Rspec::MultiprocessRunner::VERSION
+  spec.version       = RSpec::MultiprocessRunner::VERSION
   spec.authors       = ["Rhett Sutphin"]
   spec.email         = ["rhett@detailedbalance.net"]
 
