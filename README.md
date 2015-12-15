@@ -105,6 +105,11 @@ Create a coordinator and tell it to run:
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/cdd/rspec-multiprocess_runner.
 
+### Project infrastructure
+
+* [Source on GitHub](https://github.com/cdd/rspec-multiprocess_runner)
+* [![Build Status](https://travis-ci.org/cdd/rspec-multiprocess_runner.svg?branch=master)](https://travis-ci.org/cdd/rspec-multiprocess_runner)
+  [Continuous Integration on Travis-CI](https://travis-ci.org/cdd/rspec-multiprocess_runner)
 
 ## License
 
