@@ -6,6 +6,8 @@ module RSpec::MultiprocessRunner
   ##
   # RSpec formatter used by workers to communicate spec execution to the
   # coordinator.
+  #
+  # @private
   class ReportingFormatter < RSpec::Core::Formatters::BaseTextFormatter
     class << self
       # The worker to which to report spec status. This has to be a class-level

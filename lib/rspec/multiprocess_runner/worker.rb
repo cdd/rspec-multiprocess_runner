@@ -17,6 +17,8 @@ module RSpec::MultiprocessRunner
   #   track the worker's status, completed specs, and example results.
   # - In the worker process, it is used to send messages to the coordinator and
   #   actually run specs.
+  #
+  # @private
   class Worker
     attr_reader :pid, :environment_number, :example_results, :current_file
     attr_accessor :deactivation_reason
