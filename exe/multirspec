@@ -11,6 +11,7 @@ success = RSpec::MultiprocessRunner::Coordinator.new(
   options.files_to_run,
   {
     file_timeout_seconds: options.file_timeout_seconds,
+    example_timeout_seconds: options.example_timeout_seconds,
     rspec_options: options.rspec_options
   }
 ).run

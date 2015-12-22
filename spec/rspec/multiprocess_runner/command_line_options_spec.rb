@@ -12,8 +12,12 @@ module RSpec::MultiprocessRunner
           expect(parsed.worker_count).to eq(3)
         end
 
-        it "has a per-file timeout of 5 minutes" do
-          expect(parsed.file_timeout_seconds).to eq(300)
+        it "has no per-file timeout" do
+          expect(parsed.file_timeout_seconds).to be_nil
+        end
+
+        it "has a 15 second per-example timeout" do
+          expect(parsed.example_timeout_seconds).to eq(15)
         end
       end
 
@@ -57,14 +61,18 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
         end
 
-        it "has the timeout time" do
+        it "has the file timeout time" do
           expect(parsed.file_timeout_seconds).to eq(1200)
+        end
+
+        it "has the example timeout time" do
+          expect(parsed.example_timeout_seconds).to eq(67)
         end
 
         it "has no files" do
@@ -104,6 +112,7 @@ module RSpec::MultiprocessRunner
           %w(
             --worker-count 8
             -t 250
+            -T 3.1
             spec/models/ear_spec.rb
             spec/helpers
             --
@@ -116,8 +125,12 @@ module RSpec::MultiprocessRunner
           expect(parsed.worker_count).to eq(8)
         end
 
-        it "has the timeout" do
+        it "has the file timeout" do
           expect(parsed.file_timeout_seconds).to eq(250)
+        end
+
+        it "has the example timeout" do
+          expect(parsed.example_timeout_seconds).to eq(3.1)
         end
 
         it "has the files" do

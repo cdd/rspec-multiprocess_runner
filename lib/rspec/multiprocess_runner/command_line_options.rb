@@ -5,12 +5,13 @@ require 'pathname'
 module RSpec::MultiprocessRunner
   # @private
   class CommandLineOptions
-    attr_accessor :worker_count, :file_timeout_seconds, :rspec_options,
-      :explicit_files_or_directories, :pattern
+    attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
+      :rspec_options, :explicit_files_or_directories, :pattern
 
     def initialize
       self.worker_count = 3
-      self.file_timeout_seconds = 300
+      self.file_timeout_seconds = nil
+      self.example_timeout_seconds = 15
       self.pattern = "**/*_spec.rb"
       self.rspec_options = []
     end
@@ -58,19 +59,31 @@ module RSpec::MultiprocessRunner
       @help_requested
     end
 
+    def print_default(default_value)
+      if default_value
+        "default: #{default_value}"
+      else
+        "none by default"
+      end
+    end
+
     def build_parser
       OptionParser.new do |parser|
         parser.banner = "#{File.basename $0} [options] [files or directories] [-- rspec options]"
 
-        parser.on("-w", "--worker-count COUNT", Integer, "Number of workers to run (default: #{worker_count})") do |n|
+        parser.on("-w", "--worker-count COUNT", Integer, "Number of workers to run (#{print_default worker_count})") do |n|
           self.worker_count = n
         end
 
-        parser.on("-t", "--file-timeout SECONDS", Integer, "Maximum time to allow any single file to run (default: #{file_timeout_seconds})") do |s|
+        parser.on("-t", "--file-timeout SECONDS", Float, "Maximum time to allow any single file to run (#{print_default file_timeout_seconds})") do |s|
           self.file_timeout_seconds = s
         end
 
-        parser.on("-P", "--pattern PATTERN", "A glob to use to select files to run (default: #{pattern})") do |pattern|
+        parser.on("-T", "--example-timeout SECONDS", Float, "Maximum time to allow any single example to run (#{print_default example_timeout_seconds})") do |s|
+          self.example_timeout_seconds = s
+        end
+
+        parser.on("-P", "--pattern PATTERN", "A glob to use to select files to run (#{print_default pattern})") do |pattern|
           self.pattern = pattern
         end
 

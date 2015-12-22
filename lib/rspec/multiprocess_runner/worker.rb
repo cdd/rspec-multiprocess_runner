@@ -33,6 +33,7 @@ module RSpec::MultiprocessRunner
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :STREAM)
       @rspec_arguments = (options[:rspec_options] || []) + ["--format", ReportingFormatter.to_s]
+      @example_timeout_seconds = options[:example_timeout_seconds]
       @file_timeout_seconds = options[:file_timeout_seconds]
       @example_results = []
 
@@ -95,7 +96,7 @@ module RSpec::MultiprocessRunner
     def run_file(filename)
       send_message_to_worker(command: COMMAND_RUN_FILE, filename: filename)
       @current_file = filename
-      @current_file_started_at = Time.now
+      @current_file_started_at = @current_example_started_at = Time.now
     end
 
     def working?
@@ -103,9 +104,15 @@ module RSpec::MultiprocessRunner
     end
 
     def stalled?
-      if @file_timeout_seconds
-        working? && (Time.now - @current_file_started_at > @file_timeout_seconds)
-      end
+      file_stalled =
+        if @file_timeout_seconds
+          working? && (Time.now - @current_file_started_at > @file_timeout_seconds)
+        end
+      example_stalled =
+        if @example_timeout_seconds
+          working? && (Time.now - @current_example_started_at > @example_timeout_seconds)
+        end
+      file_stalled || example_stalled
     end
 
     def reap
@@ -138,6 +145,7 @@ module RSpec::MultiprocessRunner
       when STATUS_RUN_COMPLETE
         @current_file = nil
         @current_file_started_at = nil
+        @current_example_started_at = nil
       when STATUS_EXAMPLE_COMPLETE
         example_results << ExampleResult.new(message_hash)
         suffix =
@@ -151,6 +159,7 @@ module RSpec::MultiprocessRunner
           suffix += "\n#{message_hash["details"]}"
         end
         $stdout.puts "#{environment_number} (#{pid}): #{message_hash["description"]}#{suffix}"
+        @current_example_started_at = Time.now
       else
         $stderr.puts "Received unsupported status #{message_hash["status"].inspect} in worker #{pid}"
       end

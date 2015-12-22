@@ -7,6 +7,7 @@ module RSpec::MultiprocessRunner
     def initialize(worker_count, files, options={})
       @worker_count = worker_count
       @file_timeout_seconds = options[:file_timeout_seconds]
+      @example_timeout_seconds = options[:example_timeout_seconds]
       @rspec_options = options[:rspec_options]
       @spec_files = files
       @workers = []
@@ -95,6 +96,7 @@ module RSpec::MultiprocessRunner
         new_worker = Worker.new(
           n,
           file_timeout_seconds: @file_timeout_seconds,
+          example_timeout_seconds: @example_timeout_seconds,
           rspec_options: @rspec_options
         )
         @workers << new_worker
