@@ -29,11 +29,11 @@ module RSpec::MultiprocessRunner
     STATUS_EXAMPLE_COMPLETE = "example_complete"
     STATUS_RUN_COMPLETE = "run_complete"
 
-    def initialize(environment_number, file_timeout, rspec_arguments=[])
+    def initialize(environment_number, options)
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :STREAM)
-      @rspec_arguments = rspec_arguments + ["--format", ReportingFormatter.to_s]
-      @file_timeout = file_timeout
+      @rspec_arguments = (options[:rspec_options] || []) + ["--format", ReportingFormatter.to_s]
+      @file_timeout_seconds = options[:file_timeout_seconds]
       @example_results = []
 
       # Use a single configuration and world across all individual runs
@@ -103,7 +103,9 @@ module RSpec::MultiprocessRunner
     end
 
     def stalled?
-      working? && (Time.now - @current_file_started_at > @file_timeout)
+      if @file_timeout_seconds
+        working? && (Time.now - @current_file_started_at > @file_timeout_seconds)
+      end
     end
 
     def reap

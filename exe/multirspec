@@ -8,9 +8,11 @@ exit(2) unless options
 
 success = RSpec::MultiprocessRunner::Coordinator.new(
   options.worker_count,
-  options.file_timeout_seconds,
-  options.rspec_options,
-  options.files_to_run
+  options.files_to_run,
+  {
+    file_timeout_seconds: options.file_timeout_seconds,
+    rspec_options: options.rspec_options
+  }
 ).run
 
 exit(success ? 0 : 1)

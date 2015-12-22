@@ -4,10 +4,10 @@ require 'rspec/multiprocess_runner/worker'
 
 module RSpec::MultiprocessRunner
   class Coordinator
-    def initialize(worker_count, file_timeout, rspec_options, files)
+    def initialize(worker_count, files, options={})
       @worker_count = worker_count
-      @file_timeout = file_timeout
-      @rspec_options = rspec_options
+      @file_timeout_seconds = options[:file_timeout_seconds]
+      @rspec_options = options[:rspec_options]
       @spec_files = files
       @workers = []
       @deactivated_workers = []
@@ -92,7 +92,11 @@ module RSpec::MultiprocessRunner
     def create_and_start_worker_if_necessary(n)
       if work_left_to_do?
         $stderr.puts "(Re)starting worker #{n}"
-        new_worker = Worker.new(n, @file_timeout, @rspec_options)
+        new_worker = Worker.new(
+          n,
+          file_timeout_seconds: @file_timeout_seconds,
+          rspec_options: @rspec_options
+        )
         @workers << new_worker
         new_worker.start
         new_worker.run_file(@spec_files.shift)

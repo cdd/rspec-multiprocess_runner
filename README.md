@@ -95,10 +95,16 @@ Create a coordinator and tell it to run:
 
     worker_count = 4
     per_file_timeout = 5 * 60    # 5 minutes in seconds
-    rspec_args = %w(--backtrace)
+    rspec_options = %w(--backtrace)
     files = Dir['**/*_spec.rb']
 
-    coordinator = RSpec::MultiprocessRunner::Coordinator(worker_count, per_file_timeout, rspec_args, files)
+    coordinator = RSpec::MultiprocessRunner::Coordinator.new(
+      worker_count, files,
+      {
+        file_timeout_seconds: per_file_timeout,
+        rspec_options: rspec_options
+      }
+    )
     coordinator.run
 
 ## Contributing
