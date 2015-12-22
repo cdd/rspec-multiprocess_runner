@@ -30,8 +30,12 @@ module RSpec::MultiprocessRunner
     attr_accessor :worker_count
 
     # The maximum number of seconds to allow a single spec file to run
-    # before killing it. Defaults to 300.
+    # before killing it. Defaults to disabled.
     attr_accessor :file_timeout_seconds
+
+    # The maximum number of seconds to allow a single example to run
+    # before killing it. Defaults to 15.
+    attr_accessor :example_timeout_seconds
 
     # Whether or not to fail Rake when an error occurs (typically when
     # examples fail). Defaults to `true`.
@@ -93,6 +97,9 @@ module RSpec::MultiprocessRunner
       cmd_parts << multirspec_path
       if worker_count
         cmd_parts << '--worker-count' << worker_count.to_s
+      end
+      if example_timeout_seconds
+        cmd_parts << '--example-timeout' << example_timeout_seconds.to_s
       end
       if file_timeout_seconds
         cmd_parts << '--file-timeout' << file_timeout_seconds.to_s

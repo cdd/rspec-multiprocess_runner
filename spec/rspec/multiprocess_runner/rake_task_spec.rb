@@ -76,6 +76,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with an example timeout" do
+      it "is passed into the command" do
+        task.example_timeout_seconds = 1.5
+        expect(spec_command).to include_elements_in_order("--example-timeout", "1.5")
+      end
+    end
+
     context "with explicit files" do
       it "includes them in the command" do
         task.files_or_directories = %w(spec/models/soul_spec.rb spec/actions/sale_spec.rb)
