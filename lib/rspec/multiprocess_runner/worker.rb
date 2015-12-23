@@ -205,16 +205,25 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    def handle_closed_coordinator_socket
+      # when the coordinator socket is closed, there's nothing more to do
+      exit
+    end
+
     def receive_message_from_coordinator(socket)
       receive_message(socket)
     end
 
     def send_message_to_coordinator(message_hash)
-      send_message(@worker_socket, message_hash)
+      begin
+        send_message(@worker_socket, message_hash)
+      rescue Errno::EPIPE
+        handle_closed_coordinator_socket
+      end
     end
 
     def act_on_message_from_coordinator(message_hash)
-      return unless message_hash # ignore EOF
+      return handle_closed_coordinator_socket unless message_hash # EOF
       case message_hash["command"]
       when "quit"
         exit
