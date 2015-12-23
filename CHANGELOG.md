@@ -6,6 +6,8 @@
 * **Breaking change**: changed arguments for `Coordinator`'s constructor
 * Correct signal used when requesting that stalled processes quit (use TERM
   instead of QUIT)
+* Stop idle processes once there's no work, instead of waiting and stopping
+  everything when the suite is complete
 
 # 0.1.0
 

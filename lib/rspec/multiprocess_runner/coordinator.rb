@@ -11,7 +11,7 @@ module RSpec::MultiprocessRunner
       @rspec_options = options[:rspec_options]
       @spec_files = files
       @workers = []
-      @deactivated_workers = []
+      @stopped_workers = []
     end
 
     def run
@@ -27,7 +27,7 @@ module RSpec::MultiprocessRunner
     end
 
     def failed?
-      !@deactivated_workers.empty? || any_example_failed?
+      !failed_workers.empty? || any_example_failed?
     end
 
     private
@@ -41,12 +41,22 @@ module RSpec::MultiprocessRunner
         act_on_available_worker_messages(0.3)
         reap_stalled_workers
         start_missing_workers
+        quit_idle_unnecessary_workers
         break unless @workers.detect(&:working?)
       end
     end
 
     def quit_all_workers
-      quit_threads = @workers.map do |worker|
+      # quit_workers modifies @workers, so dup before sending in
+      quit_workers(@workers.dup)
+    end
+
+    def quit_workers(some_workers)
+      quit_threads = some_workers.map do |worker|
+        # This method is not threadsafe because it updates instance variables.
+        # But it's fine to run it outside of the thread because it doesn't
+        # block.
+        mark_worker_as_stopped(worker)
         Thread.new do
           worker.quit
           worker.wait_until_quit
@@ -57,6 +67,10 @@ module RSpec::MultiprocessRunner
 
     def work_left_to_do?
       !@spec_files.empty?
+    end
+
+    def failed_workers
+      @stopped_workers.select { |w| w.deactivation_reason }
     end
 
     def act_on_available_worker_messages(timeout)
@@ -75,8 +89,12 @@ module RSpec::MultiprocessRunner
 
     def reap_one_worker(worker, reason)
       worker.reap
-      @deactivated_workers << worker
       worker.deactivation_reason = reason
+      mark_worker_as_stopped(worker)
+    end
+
+    def mark_worker_as_stopped(worker)
+      @stopped_workers << worker
       @workers.reject! { |w| w == worker }
     end
 
@@ -115,6 +133,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    def quit_idle_unnecessary_workers
+      unless work_left_to_do?
+        idle_workers = @workers.reject(&:working?)
+        quit_workers(idle_workers)
+      end
+    end
+
     def print_summary
       elapsed = Time.now - @start_time
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
@@ -131,11 +156,11 @@ module RSpec::MultiprocessRunner
     end
 
     def combine_example_results
-      (@workers + @deactivated_workers).flat_map(&:example_results).sort_by { |r| r.time_finished }
+      (@workers + @stopped_workers).flat_map(&:example_results).sort_by { |r| r.time_finished }
     end
 
     def any_example_failed?
-      (@workers + @deactivated_workers).detect { |w| w.example_results.detect { |r| r.status == "failed" } }
+      (@workers + @stopped_workers).detect { |w| w.example_results.detect { |r| r.status == "failed" } }
     end
 
     def print_skipped_files_details
@@ -177,7 +202,7 @@ module RSpec::MultiprocessRunner
       example_count = by_status_and_time.map { |status, results| results.size }.inject(0) { |sum, ct| sum + ct }
       failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
       pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
-      process_failure_count = @deactivated_workers.size
+      process_failure_count = failed_workers.size
       skipped_count = @spec_files.size
 
       # Copied from RSpec
@@ -190,10 +215,10 @@ module RSpec::MultiprocessRunner
     end
 
     def print_failed_process_details
-      return if @deactivated_workers.empty?
+      return if failed_workers.empty?
       puts
       puts "Failed processes:"
-      @deactivated_workers.each do |worker|
+      failed_workers.each do |worker|
         puts "  - #{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
       end
     end
