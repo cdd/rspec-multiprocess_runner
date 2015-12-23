@@ -120,6 +120,7 @@ module RSpec::MultiprocessRunner
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
         (idx[result.status] ||= []) << result
       end
+      print_skipped_files_details
       print_pending_example_details(by_status_and_time["pending"])
       print_failed_example_details(by_status_and_time["failed"])
       print_failed_process_details
@@ -135,6 +136,15 @@ module RSpec::MultiprocessRunner
 
     def any_example_failed?
       (@workers + @deactivated_workers).detect { |w| w.example_results.detect { |r| r.status == "failed" } }
+    end
+
+    def print_skipped_files_details
+      return if @spec_files.empty?
+      puts
+      puts "Skipped files:"
+      @spec_files.each do |spec_file|
+        puts "  - #{spec_file}"
+      end
     end
 
     def print_pending_example_details(pending_example_results)
@@ -168,12 +178,14 @@ module RSpec::MultiprocessRunner
       failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
       pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
       process_failure_count = @deactivated_workers.size
+      skipped_count = @spec_files.size
 
       # Copied from RSpec
       summary = pluralize(example_count, "example")
       summary << ", " << pluralize(failure_count, "failure")
       summary << ", #{pending_count} pending" if pending_count > 0
       summary << ", " << pluralize(process_failure_count, "failed proc") if process_failure_count > 0
+      summary << ", " << pluralize(skipped_count, "skipped file") if skipped_count > 0
       puts summary
     end
 
