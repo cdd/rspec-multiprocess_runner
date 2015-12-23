@@ -118,8 +118,8 @@ module RSpec::MultiprocessRunner
     def reap
       begin
         Timeout.timeout(4) do
-          $stderr.puts "Reaping troubled process #{environment_number} (#{pid}; #{@current_file}) with QUIT"
-          Process.kill(:QUIT, pid)
+          $stderr.puts "Reaping troubled process #{environment_number} (#{pid}; #{@current_file}) with TERM"
+          Process.kill(:TERM, pid)
           Process.wait(pid)
         end
       rescue Timeout::Error
