@@ -6,7 +6,7 @@ require 'rspec/multiprocess_runner/coordinator'
 options = RSpec::MultiprocessRunner::CommandLineOptions.new.parse(ARGV.dup)
 exit(2) unless options
 
-success = RSpec::MultiprocessRunner::Coordinator.new(
+coordinator = RSpec::MultiprocessRunner::Coordinator.new(
   options.worker_count,
   options.files_to_run,
   {
@@ -14,6 +14,19 @@ success = RSpec::MultiprocessRunner::Coordinator.new(
     example_timeout_seconds: options.example_timeout_seconds,
     rspec_options: options.rspec_options
   }
-).run
+)
+
+trap("INT") do
+  $stderr.puts "INT happened"
+  coordinator.shutdown(print_summary: true)
+  Kernel.exit(4)
+end
+
+trap("TERM") do
+  coordinator.shutdown
+  Kernel.exit(3)
+end
+
+success = coordinator.run
 
 exit(success ? 0 : 1)

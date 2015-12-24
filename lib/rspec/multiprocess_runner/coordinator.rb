@@ -27,7 +27,23 @@ module RSpec::MultiprocessRunner
     end
 
     def failed?
-      !failed_workers.empty? || any_example_failed?
+      !failed_workers.empty? || !@spec_files.empty? || any_example_failed?
+    end
+
+    def shutdown(options={})
+      if @shutting_down
+        # Immediately kill the workers if shutdown is requested again
+        end_workers_in_parallel(@workers.dup, :kill_now)
+      else
+        @shutting_down = true
+        print "Shutting down #{pluralize(@workers.size, "worker")} …" if options[:print_summary]
+        # end_workers_in_parallel modifies @workers, so dup before sending in
+        end_workers_in_parallel(@workers.dup, :shutdown_now)
+        if options[:print_summary]
+          puts " done"
+          print_summary
+        end
+      end
     end
 
     private
@@ -51,18 +67,21 @@ module RSpec::MultiprocessRunner
       quit_workers(@workers.dup)
     end
 
-    def quit_workers(some_workers)
-      quit_threads = some_workers.map do |worker|
+    def end_workers_in_parallel(some_workers, end_method)
+      end_threads = some_workers.map do |worker|
         # This method is not threadsafe because it updates instance variables.
         # But it's fine to run it outside of the thread because it doesn't
         # block.
         mark_worker_as_stopped(worker)
         Thread.new do
-          worker.quit
-          worker.wait_until_quit
+          worker.send(end_method)
         end
       end
-      quit_threads.each(&:join)
+      end_threads.each(&:join)
+    end
+
+    def quit_workers(some_workers)
+      end_workers_in_parallel(some_workers, :quit_when_idle_and_wait_for_quit)
     end
 
     def work_left_to_do?
@@ -77,6 +96,7 @@ module RSpec::MultiprocessRunner
       while (select_result = IO.select(worker_sockets, nil, nil, timeout))
         select_result.first.each do |readable_socket|
           ready_worker = @workers.detect { |worker| worker.socket == readable_socket }
+          next unless ready_worker # Worker is already gone
           worker_status = ready_worker.receive_and_act_on_message_from_worker
           if worker_status == :dead
             reap_one_worker(ready_worker, "died")

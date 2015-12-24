@@ -66,6 +66,17 @@ module RSpec::MultiprocessRunner
         @coordinator_socket.close
         @pid = Process.pid
         ENV["TEST_ENV_NUMBER"] = environment_number.to_s
+
+        # reset TERM handler so that
+        # - the coordinator's version (if any) is not executed twice
+        # - it actually terminates the process, instead of doing the ruby
+        #   default (throw an exception, which gets caught by RSpec)
+        Kernel.trap("TERM", "SYSTEM_DEFAULT")
+        # rely on the coordinator to handle INT
+        Kernel.trap("INT", "IGNORE")
+        # prevent RSpec from trapping INT, also
+        ::RSpec::Core::Runner.instance_eval { def self.trap_interrupt; end }
+
         set_process_name
         run_loop
       end
@@ -85,11 +96,8 @@ module RSpec::MultiprocessRunner
 
     public
 
-    def quit
+    def quit_when_idle_and_wait_for_quit
       send_message_to_worker(command: COMMAND_QUIT)
-    end
-
-    def wait_until_quit
       Process.wait(self.pid)
     end
 
@@ -115,18 +123,17 @@ module RSpec::MultiprocessRunner
       file_stalled || example_stalled
     end
 
+    def shutdown_now
+      terminate_then_kill(5)
+    end
+
+    def kill_now
+      Process.kill(:KILL, pid)
+      Process.detach(pid)
+    end
+
     def reap
-      begin
-        Timeout.timeout(4) do
-          $stderr.puts "Reaping troubled process #{environment_number} (#{pid}; #{@current_file}) with TERM"
-          Process.kill(:TERM, pid)
-          Process.wait(pid)
-        end
-      rescue Timeout::Error
-        $stderr.puts "Reaping troubled process #{environment_number} (#{pid}) with KILL"
-        Process.kill(:KILL, pid)
-        Process.wait(pid)
-      end
+      terminate_then_kill(3, "Reaping troubled process #{environment_number} (#{pid}; #{@current_file})")
     end
 
     def receive_and_act_on_message_from_worker
@@ -134,6 +141,19 @@ module RSpec::MultiprocessRunner
     end
 
     private
+
+    def terminate_then_kill(timeout, message=nil)
+      begin
+        Timeout.timeout(timeout) do
+          $stderr.puts "#{message} with TERM" if message
+          Process.kill(:TERM, pid)
+          Process.wait(pid)
+        end
+      rescue Timeout::Error
+        $stderr.puts "#{message} with KILL" if message
+        kill_now
+      end
+    end
 
     def receive_message_from_worker
       receive_message(@coordinator_socket)

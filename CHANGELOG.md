@@ -1,5 +1,7 @@
 # 0.2.0
 
+* Terminate workers when the coordinator process is interrupted with SIGINT (^C)
+  or SIGTERM (`kill` with no args) (#3)
 * Add per-example timeout option. When using `multirspec` or the rake tasks, it
   defaults to 15 seconds (#2)
 * **Breaking change**: per-file timeout is now disabled by default (#2)
