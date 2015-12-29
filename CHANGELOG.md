@@ -1,5 +1,7 @@
 # 0.2.1
 
+* Include filename and line number in realtime output (#5)
+
 # 0.2.0
 
 * Terminate workers when the coordinator process is interrupted with SIGINT (^C)

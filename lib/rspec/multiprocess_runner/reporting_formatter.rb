@@ -33,14 +33,14 @@ module RSpec::MultiprocessRunner
 
     def example_passed(example)
       super(example)
-      report_example_result(:passed, current_example_description(example))
+      report_example_result(:passed, example)
     end
 
     def example_pending(example)
       super(example)
       details = capture_output { dump_pending }
       pending_examples.clear
-      report_example_result(:pending, current_example_description(example), details)
+      report_example_result(:pending, example, details)
     end
 
     def example_failed(example)
@@ -49,7 +49,7 @@ module RSpec::MultiprocessRunner
         dump_failure_info(example)
         dump_backtrace(example)
       }
-      report_example_result(:failed, current_example_description(example), details)
+      report_example_result(:failed, example, details)
     end
 
     private
@@ -70,8 +70,10 @@ module RSpec::MultiprocessRunner
       (@current_example_groups + [example.description.strip]).join('·')
     end
 
-    def report_example_result(example_status, description, details=nil)
-      worker.report_example_result(example_status, description, details)
+    def report_example_result(example_status, example, details=nil)
+      description = current_example_description(example)
+      line = example.metadata[:line_number]
+      worker.report_example_result(example_status, description, line, details)
     end
   end
 end

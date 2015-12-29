@@ -32,7 +32,10 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     end
 
     it "reports the pass to the worker" do
-      expect(worker).to have_received(:report_example_result).with(:passed, "example group·with details·passes", anything)
+      # N.b.: the line number is in this actual file — it will change if you
+      # insert anything above this example group
+      expect(worker).to have_received(:report_example_result).
+        with(:passed, "example group·with details·passes", 25, anything)
     end
   end
 
@@ -50,12 +53,15 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     end
 
     it "reports the failure to the worker" do
-      expect(worker).to have_received(:report_example_result).with(:failed, "example group·with details·fails", anything)
+      # N.b.: the line number is in this actual file — it will change if you
+      # insert anything above this example group
+      expect(worker).to have_received(:report_example_result).
+        with(:failed, "example group·with details·fails", 46, anything)
     end
 
     it "sends the formatted details also" do
       expect(worker).to have_received(:report_example_result).with(
-        :failed, anything,
+        :failed, anything, anything,
         /Failure\/Error:.*2 \+ 2.*5/
       )
     end
@@ -75,12 +81,15 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     end
 
     it "reports the pending example to the worker" do
-      expect(worker).to have_received(:report_example_result).with(:pending, "example group·with details·is not implemented yet", anything)
+      # N.b.: the line number is in this actual file — it will change if you
+      # insert anything above this example group
+      expect(worker).to have_received(:report_example_result).
+        with(:pending, "example group·with details·is not implemented yet", 74, anything)
     end
 
     it "sends the formatted details also" do
       expect(worker).to have_received(:report_example_result).with(
-        :pending, anything,
+        :pending, anything, anything,
         /not implemented/
       )
     end

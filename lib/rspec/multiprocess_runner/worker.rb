@@ -178,7 +178,11 @@ module RSpec::MultiprocessRunner
         if message_hash["details"]
           suffix += "\n#{message_hash["details"]}"
         end
-        $stdout.puts "#{environment_number} (#{pid}): #{message_hash["description"]}#{suffix}"
+        location = @current_file
+        if message_hash["line_number"]
+          location = [location, message_hash["line_number"]].join(':')
+        end
+        $stdout.puts "#{environment_number} (#{pid}): #{message_hash["description"]} (#{location})#{suffix}"
         @current_example_started_at = Time.now
       else
         $stderr.puts "Received unsupported status #{message_hash["status"].inspect} in worker #{pid}"
@@ -196,11 +200,12 @@ module RSpec::MultiprocessRunner
 
     public
 
-    def report_example_result(example_status, description, details)
+    def report_example_result(example_status, description, line_number, details)
       send_message_to_coordinator(
         status: STATUS_EXAMPLE_COMPLETE,
         example_status: example_status,
         description: description,
+        line_number: line_number,
         details: details
       )
     end
