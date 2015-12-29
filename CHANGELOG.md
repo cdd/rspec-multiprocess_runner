@@ -1,3 +1,5 @@
+# 0.2.2
+
 # 0.2.1
 
 * Include filename and line number in realtime output (#5)
