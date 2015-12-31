@@ -9,7 +9,7 @@ module RSpec::MultiprocessRunner
       @file_timeout_seconds = options[:file_timeout_seconds]
       @example_timeout_seconds = options[:example_timeout_seconds]
       @rspec_options = options[:rspec_options]
-      @spec_files = files
+      @spec_files = sort_files(files)
       @workers = []
       @stopped_workers = []
     end
@@ -47,6 +47,15 @@ module RSpec::MultiprocessRunner
     end
 
     private
+
+    # Sorting by decreasing size attempts to ensure we don't send the slowest
+    # file to a worker right before all the other workers finish and then end up
+    # waiting for that one process to finish.
+    # In the future it would be nice to log execution time and sort by that.
+    def sort_files(files)
+      # #sort_by caches the File.size result so we only call it once per file.
+      files.sort_by { |file| -File.size(file) }
+    end
 
     def worker_sockets
       @workers.map(&:socket)
