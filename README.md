@@ -117,6 +117,21 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/cdd/rs
 * [![Build Status](https://travis-ci.org/cdd/rspec-multiprocess_runner.svg?branch=master)](https://travis-ci.org/cdd/rspec-multiprocess_runner)
   [Continuous Integration on Travis-CI](https://travis-ci.org/cdd/rspec-multiprocess_runner)
 
+### Release process
+
+1. Verify that all desired changes have been merged & pushed to master.
+2. Verify that the changelog is up to date (it should be kept up to date as
+   changes are made, so this should just be a quick check).
+3. Verify that the current master has passed on Travis.
+4. Edit `version.rb` and remove `".pre"` from the version number. Save and commit.
+5. Run `rake release`. This packages the gem and submits it to rubygems.org.
+6. Edit `version.rb` and update to the next patch-level release, plus `.pre`.
+   E.g. if you just released 0.6.10, update the version in `version.rb` to
+   `"0.6.11.pre"`.
+7. Add a heading for the new version number to `CHANGELOG.md`. E.g., if you
+   just released 0.6.10, add "# 0.6.11" to the top of the changelog.
+8. Save and commit the changes from steps 6 and 7.
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
