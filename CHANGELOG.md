@@ -1,5 +1,7 @@
 # 0.2.2
 
+* Run specs in order of decreasing file size to increase worker utilization
+
 # 0.2.1
 
 * Include filename and line number in realtime output (#5)
