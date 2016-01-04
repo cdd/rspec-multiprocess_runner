@@ -1,3 +1,6 @@
+# 0.2.3
+
+
 # 0.2.2
 
 * Run specs in order of decreasing file size to increase worker utilization
