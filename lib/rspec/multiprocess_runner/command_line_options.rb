@@ -6,13 +6,14 @@ module RSpec::MultiprocessRunner
   # @private
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
-      :rspec_options, :explicit_files_or_directories, :pattern
+      :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files
 
     def initialize
       self.worker_count = 3
       self.file_timeout_seconds = nil
       self.example_timeout_seconds = 15
       self.pattern = "**/*_spec.rb"
+      self.log_failing_files = false
       self.rspec_options = []
     end
 
@@ -85,6 +86,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("-P", "--pattern PATTERN", "A glob to use to select files to run (#{print_default pattern})") do |pattern|
           self.pattern = pattern
+        end
+
+        parser.on("--log-failing-files", "Write failing spec files to multiprocess.failures") do |bool|
+          self.log_failing_files = bool
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

@@ -206,7 +206,8 @@ module RSpec::MultiprocessRunner
         example_status: example_status,
         description: description,
         line_number: line_number,
-        details: details
+        details: details,
+        file_path: @current_file
       )
     end
 
@@ -295,12 +296,13 @@ module RSpec::MultiprocessRunner
 
   # @private
   class ExampleResult
-    attr_reader :status, :description, :details, :time_finished
+    attr_reader :status, :description, :details, :file_path, :time_finished
 
     def initialize(example_complete_message)
       @status = example_complete_message["example_status"]
       @description = example_complete_message["description"]
       @details = example_complete_message["details"]
+      @file_path = example_complete_message["file_path"]
       @time_finished = Time.now
     end
   end

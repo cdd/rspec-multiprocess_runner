@@ -12,7 +12,8 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
   {
     file_timeout_seconds: options.file_timeout_seconds,
     example_timeout_seconds: options.example_timeout_seconds,
-    rspec_options: options.rspec_options
+    rspec_options: options.rspec_options,
+    log_failing_files: options.log_failing_files
   }
 )
 
@@ -29,4 +30,9 @@ end
 
 success = coordinator.run
 
-exit(success ? 0 : 1)
+status = if options.log_failing_files
+  0
+else
+  success ? 0 : 1
+end
+exit(status)

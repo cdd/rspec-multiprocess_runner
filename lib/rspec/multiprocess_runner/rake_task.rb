@@ -52,6 +52,8 @@ module RSpec::MultiprocessRunner
     # rspec binary from the loaded rspec-core gem.
     attr_accessor :multirspec_path
 
+    attr_accessor :log_failing_files
+
     # Command line options to pass to the RSpec workers. Defaults to `nil`.
     attr_accessor :rspec_opts
 
@@ -106,6 +108,9 @@ module RSpec::MultiprocessRunner
       end
       if pattern
         cmd_parts << '--pattern' << pattern
+      end
+      if log_failing_files
+        cmd_parts << '--log-failing-files'
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)
