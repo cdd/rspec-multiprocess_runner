@@ -83,6 +83,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with a log failing files flag" do
+      it 'is passed into the command' do
+        task.log_failing_files = true
+        expect(spec_command).to include_elements_in_order("--log-failing-files")
+      end
+    end
+
     context "with explicit files" do
       it "includes them in the command" do
         task.files_or_directories = %w(spec/models/soul_spec.rb spec/actions/sale_spec.rb)
@@ -96,6 +103,7 @@ module RSpec::MultiprocessRunner
         task.directories = %w(features)
         task.worker_count = 8
         task.file_timeout_seconds = 600
+        task.log_failing_files = true
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -104,6 +112,7 @@ module RSpec::MultiprocessRunner
           "--worker-count", "8",
           "--file-timeout", "600",
           "--pattern", "*.feature",
+          "--log-failing-files",
           "features",
           "--",
           "--backtrace"
