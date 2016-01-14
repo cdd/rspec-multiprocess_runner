@@ -110,7 +110,7 @@ module RSpec::MultiprocessRunner
         cmd_parts << '--pattern' << pattern
       end
       if log_failing_files
-        cmd_parts << '--log-failing-files'
+        cmd_parts << '--log-failing-files' << log_failing_files
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)
