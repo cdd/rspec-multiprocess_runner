@@ -2,6 +2,7 @@
 
 # 0.2.3
 
+* Add `--log-failing-files` option (#7)
 
 # 0.2.2
 
