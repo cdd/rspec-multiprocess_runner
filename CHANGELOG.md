@@ -1,5 +1,9 @@
 # 0.2.4
 
+* Rewrite `--log-failing-files` option
+* Make the output file configurable
+* Revert exit status change (#8)
+
 # 0.2.3
 
 * Add `--log-failing-files` option (#7)
