@@ -30,9 +30,4 @@ end
 
 success = coordinator.run
 
-status = if options.log_failing_files
-  0
-else
-  success ? 0 : 1
-end
-exit(status)
+exit(success ? 0 : 1)

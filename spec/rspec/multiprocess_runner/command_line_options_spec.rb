@@ -96,11 +96,11 @@ module RSpec::MultiprocessRunner
         include_examples "no errors"
       end
 
-      describe 'with a log failing files flag' do
-        let(:arguments) { %w(--log-failing-files) }
+      describe 'with a log failing files option' do
+        let(:arguments) { %w(--log-failing-files logfile.name) }
 
-        it 'has the flag' do
-          expect(parsed.log_failing_files).to be_true
+        it 'has the file name' do
+          expect(parsed.log_failing_files).to eq("logfile.name")
         end
 
         it "has no files" do

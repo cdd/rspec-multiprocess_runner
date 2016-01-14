@@ -13,7 +13,7 @@ module RSpec::MultiprocessRunner
       self.file_timeout_seconds = nil
       self.example_timeout_seconds = 15
       self.pattern = "**/*_spec.rb"
-      self.log_failing_files = false
+      self.log_failing_files = nil
       self.rspec_options = []
     end
 
@@ -88,8 +88,8 @@ module RSpec::MultiprocessRunner
           self.pattern = pattern
         end
 
-        parser.on("--log-failing-files", "Write failing spec files to multiprocess.failures") do |bool|
-          self.log_failing_files = bool
+        parser.on("--log-failing-files FILENAME", "Filename to log failing files to") do |filename|
+          self.log_failing_files = filename
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

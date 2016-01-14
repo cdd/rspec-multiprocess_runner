@@ -175,7 +175,6 @@ module RSpec::MultiprocessRunner
       by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
         (idx[result.status] ||= []) << result
       end
-      count_examples(by_status_and_time)
 
       print_skipped_files_details
       print_pending_example_details(by_status_and_time["pending"])
@@ -194,13 +193,6 @@ module RSpec::MultiprocessRunner
 
     def any_example_failed?
       (@workers + @stopped_workers).detect { |w| w.example_results.detect { |r| r.status == "failed" } }
-    end
-
-    def count_examples(example_results)
-      @metadata = {}
-      @metadata[:example_count] = example_results.map { |status, results| results.size }.inject(0) { |sum, ct| sum + ct }
-      @metadata[:failure_count] = example_results["failed"] ? example_results["failed"].size : 0
-      @metadata[:pending_count] = example_results["pending"] ? example_results["pending"].size : 0
     end
 
     def print_skipped_files_details
@@ -235,7 +227,6 @@ module RSpec::MultiprocessRunner
 
     def log_failed_files(failed_example_results)
       return if failed_example_results.nil?
-      return if failed_example_results.size > @metadata[:example_count] / 10.0
 
       failing_files = Hash.new { |h, k| h[k] = 0 }
       failed_example_results.each do |failure|
@@ -243,8 +234,8 @@ module RSpec::MultiprocessRunner
       end
 
       puts
-      puts "Writing failures to file: multiprocess.failures"
-      File.open("multiprocess.failures", "w+") do |io|
+      puts "Writing failures to file: #{@log_failing_files}"
+      File.open(@log_failing_files, "w+") do |io|
         failing_files.each do |(k, _)|
           io << k
           io << "\n"
@@ -258,13 +249,16 @@ module RSpec::MultiprocessRunner
     end
 
     def print_example_counts(by_status_and_time)
+      example_count = by_status_and_time.map { |status, results| results.size }.inject(0) { |sum, ct| sum + ct }
+      failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
+      pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
       process_failure_count = failed_workers.size
       skipped_count = @spec_files.size
 
       # Copied from RSpec
-      summary = pluralize(@metadata[:example_count], "example")
-      summary << ", " << pluralize(@metadata[:failure_count], "failure")
-      summary << ", #{@metadata[:pending_count]} pending" if @metadata[:pending_count] > 0
+      summary = pluralize(example_count, "example")
+      summary << ", " << pluralize(failure_count, "failure")
+      summary << ", #{pending_count} pending" if pending_count > 0
       summary << ", " << pluralize(process_failure_count, "failed proc") if process_failure_count > 0
       summary << ", " << pluralize(skipped_count, "skipped file") if skipped_count > 0
       puts summary
