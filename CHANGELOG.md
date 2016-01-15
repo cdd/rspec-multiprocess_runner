@@ -1,8 +1,8 @@
-# 0.2.4
+# 0.3.0
 
-* Rewrite `--log-failing-files` option
-* Make the output file configurable
-* Revert exit status change (#8)
+* Require a filename for the `--log-failing-files` option (#9)
+* Exit status for `multirspec` is only 0 on success and is always non-zero when
+  there is any sort of failure (#8)
 
 # 0.2.3
 
