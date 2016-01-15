@@ -1,3 +1,5 @@
+# 0.3.1
+
 # 0.3.0
 
 * Require a filename for the `--log-failing-files` option (#9)
