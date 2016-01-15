@@ -52,6 +52,8 @@ module RSpec::MultiprocessRunner
     # rspec binary from the loaded rspec-core gem.
     attr_accessor :multirspec_path
 
+    # Filename to which to append a list of the files containing specs that
+    # failed.
     attr_accessor :log_failing_files
 
     # Command line options to pass to the RSpec workers. Defaults to `nil`.
