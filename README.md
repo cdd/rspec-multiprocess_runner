@@ -35,7 +35,6 @@ switch.
 * Intermediate-quality code. Happy path works, and workers are
   managed/restarted, but:
   * There's no test coverage of the runner itself, only auxiliaries.
-  * Does not handle the coordinator process dying (e.g., from `^C`).
 
 ## Installation
 
