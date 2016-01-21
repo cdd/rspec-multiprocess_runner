@@ -1,6 +1,8 @@
 # 0.4.0
 
 * Change TEST_ENV_NUMBER values to match parallel_tests (#10)
+* Allow for environment-variable-based defaults for worker count and first-is-1
+  in `multirspec` (like #10, improving compatibility with parallel_tests)
 
 # 0.3.0
 

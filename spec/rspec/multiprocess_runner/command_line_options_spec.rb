@@ -196,6 +196,56 @@ module RSpec::MultiprocessRunner
           expect(parsed).to be_nil
         end
       end
+
+      describe 'with environment overrides' do
+        let(:arguments) { [] }
+
+        describe 'for worker count' do
+          it 'obeys PARALLEL_TEST_PROCESSORS' do
+            stub_env('PARALLEL_TEST_PROCESSORS', '7')
+            expect(parsed.worker_count).to eq(7)
+          end
+
+          it 'obeys MULTIRSPEC_WORKER_COUNT' do
+            stub_env('MULTIRSPEC_WORKER_COUNT', '22')
+            expect(parsed.worker_count).to eq(22)
+          end
+
+          it 'prefers MULTIRSPEC_WORKER_COUNT to PARALLEL_TEST_PROCESSORS' do
+            stub_env('PARALLEL_TEST_PROCESSORS', '7')
+            stub_env('MULTIRSPEC_WORKER_COUNT', '21')
+            expect(parsed.worker_count).to eq(21)
+          end
+
+          describe 'with an explicit worker count CLI option' do
+            let(:arguments) { %w(--worker-count 9) }
+
+            it 'uses that value instead of either env var' do
+              stub_env('PARALLEL_TEST_PROCESSORS', '7')
+              stub_env('MULTIRSPEC_WORKER_COUNT', '21')
+              expect(parsed.worker_count).to eq(9)
+            end
+          end
+        end
+
+        describe 'for first-is-1' do
+          %w(PARALLEL_TEST_FIRST_IS_1 MULTIRSPEC_FIRST_IS_1).each do |var|
+            %w(true 1).each do |val|
+              it "treats #{var}=#{val.inspect} as set" do
+                stub_env(var, val)
+                expect(parsed.first_is_1).to be_true
+              end
+            end
+
+            %w(false 0).each do |val|
+              it "treats #{var}=#{val.inspect} as not set" do
+                stub_env(var, val)
+                expect(parsed.first_is_1).to be_false
+              end
+            end
+          end
+        end
+      end
     end
 
     describe "#files_to_run" do

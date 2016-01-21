@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rspec/multiprocess_runner'
 require 'rspec/core'
+require 'stub_env'
 
 Dir['./spec/support/**/*.rb'].map {|f| require f}
 
@@ -40,4 +41,5 @@ end
 
 RSpec.configure do |c|
   c.around {|example| Sandboxing.sandboxed { example.run }}
+  c.include StubEnv::Helpers
 end

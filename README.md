@@ -125,6 +125,21 @@ have your multiprocess runs be isolated from the environment used in tests you
 run normally, allowing you to to TDD while a long-running multiprocess run
 continues in the background.
 
+### Behavior options
+
+All options are available via the `multirspec` command line interface. A couple
+may alternatively be set in the calling environment.
+
+* Worker count: instead of providing `-w 5`, set `PARALLEL_TEST_PROCESSORS="5"` or
+  `MULTIRSPEC_WORKER_COUNT="5"` in the environment. If both `-w` and one of these
+  vars is set, the value passed to `-w` will win.
+* First-is-1: instead of providing `--first-is-1`, set
+  `PARALLEL_TEST_FIRST_IS_1="true"` or `MULTIRSPEC_FIRST_IS_1="true"` in the
+  environment.
+
+These environment variables only apply to the CLI and rake task. If you
+directly invoke `RSpec::MultiprocessRunner::Coordinator#run`, they are ignored.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/cdd/rspec-multiprocess_runner.

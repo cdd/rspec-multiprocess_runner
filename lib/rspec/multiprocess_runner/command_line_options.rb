@@ -9,14 +9,16 @@ module RSpec::MultiprocessRunner
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
       :first_is_1
 
+    DEFAULT_WORKER_COUNT = 3
+
     def initialize
-      self.worker_count = 3
+      self.worker_count = default_worker_count
       self.file_timeout_seconds = nil
       self.example_timeout_seconds = 15
       self.pattern = "**/*_spec.rb"
       self.log_failing_files = nil
       self.rspec_options = []
-      self.first_is_1 = false
+      self.first_is_1 = default_first_is_1
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -53,6 +55,20 @@ module RSpec::MultiprocessRunner
     end
 
     private
+
+    def default_worker_count
+      from_env = ENV['MULTIRSPEC_WORKER_COUNT'] || ENV['PARALLEL_TEST_PROCESSORS']
+      if from_env
+        from_env.to_i
+      else
+        DEFAULT_WORKER_COUNT
+      end
+    end
+
+    def default_first_is_1
+      from_env = ENV['MULTIRSPEC_FIRST_IS_1'] || ENV['PARALLEL_TEST_FIRST_IS_1']
+      %w(true 1).include?(from_env)
+    end
 
     def help_requested!
       @help_requested = true
@@ -94,7 +110,7 @@ module RSpec::MultiprocessRunner
           self.log_failing_files = filename
         end
 
-        parser.on("--first-is-1", "Use \"1\" for the first worker's TEST_ENV_NUMBER (instead of \"\")") do
+        parser.on("--first-is-1", "Use \"1\" for the first worker's TEST_ENV_NUMBER (instead of \"\")#{" (enabled in environment)" if first_is_1}") do
           self.first_is_1 = true
         end
 
