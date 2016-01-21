@@ -61,7 +61,7 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
@@ -73,6 +73,10 @@ module RSpec::MultiprocessRunner
 
         it "has the example timeout time" do
           expect(parsed.example_timeout_seconds).to eq(67)
+        end
+
+        it "has the first-is-1 flag" do
+          expect(parsed.first_is_1).to be_true
         end
 
         it "has no files" do

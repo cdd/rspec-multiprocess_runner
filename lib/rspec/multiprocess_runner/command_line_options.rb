@@ -6,7 +6,8 @@ module RSpec::MultiprocessRunner
   # @private
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
-      :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files
+      :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
+      :first_is_1
 
     def initialize
       self.worker_count = 3
@@ -15,6 +16,7 @@ module RSpec::MultiprocessRunner
       self.pattern = "**/*_spec.rb"
       self.log_failing_files = nil
       self.rspec_options = []
+      self.first_is_1 = false
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -90,6 +92,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("--log-failing-files FILENAME", "Filename to log failing files to") do |filename|
           self.log_failing_files = filename
+        end
+
+        parser.on("--first-is-1", "Use \"1\" for the first worker's TEST_ENV_NUMBER (instead of \"\")") do
+          self.first_is_1 = true
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

@@ -106,6 +106,25 @@ Create a coordinator and tell it to run:
     )
     coordinator.run
 
+… but you are probably better off using the command line interface.
+
+## Runtime environment
+
+### `TEST_ENV_NUMBER`
+
+This runner provides each worker with a environment number so that you can
+segment access to resources (databases, etc). For convenience, it follows the
+same convention as `parallel_tests`.
+
+* The environment number is provided as an environment variable named `TEST_ENV_NUMBER`
+* The first environment number is `""` and subsequent ones are integers (`"2"`, `"3"`, etc.)
+
+Like `parallel_tests` 2.3 and later, `multirspec` supports a `--first-is-1`
+argument which makes the first environment number `"1"` instead. Use this to
+have your multiprocess runs be isolated from the environment used in tests you
+run normally, allowing you to to TDD while a long-running multiprocess run
+continues in the background.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/cdd/rspec-multiprocess_runner.

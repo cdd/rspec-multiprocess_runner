@@ -83,6 +83,18 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with a first_is_1" do
+      it "is passed into the command when true" do
+        task.first_is_1 = true
+        expect(spec_command).to include_elements_in_order("--first-is-1")
+      end
+
+      it "is not passed into the command when false" do
+        task.first_is_1 = false
+        expect(spec_command).not_to include_elements_in_order("--first-is-1")
+      end
+    end
+
     context "with a log failing files flag" do
       it 'is passed into the command' do
         task.log_failing_files = "afile.txt"
@@ -104,6 +116,7 @@ module RSpec::MultiprocessRunner
         task.worker_count = 8
         task.file_timeout_seconds = 600
         task.log_failing_files = "afile.txt"
+        task.first_is_1 = true
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -111,6 +124,7 @@ module RSpec::MultiprocessRunner
           task.multirspec_path,
           "--worker-count", "8",
           "--file-timeout", "600",
+          "--first-is-1",
           "--pattern", "*.feature",
           "--log-failing-files", "afile.txt",
           "features",

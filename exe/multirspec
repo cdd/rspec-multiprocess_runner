@@ -12,6 +12,7 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
   {
     file_timeout_seconds: options.file_timeout_seconds,
     example_timeout_seconds: options.example_timeout_seconds,
+    test_env_number_first_is_1: options.first_is_1,
     rspec_options: options.rspec_options,
     log_failing_files: options.log_failing_files
   }

@@ -8,6 +8,7 @@ module RSpec::MultiprocessRunner
       @worker_count = worker_count
       @file_timeout_seconds = options[:file_timeout_seconds]
       @example_timeout_seconds = options[:example_timeout_seconds]
+      @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
       @log_failing_files = options[:log_failing_files]
       @rspec_options = options[:rspec_options]
       @spec_files = sort_files(files)
@@ -145,7 +146,8 @@ module RSpec::MultiprocessRunner
           n,
           file_timeout_seconds: @file_timeout_seconds,
           example_timeout_seconds: @example_timeout_seconds,
-          rspec_options: @rspec_options
+          rspec_options: @rspec_options,
+          test_env_number_first_is_1: @test_env_number_first_is_1
         )
         @workers << new_worker
         new_worker.start

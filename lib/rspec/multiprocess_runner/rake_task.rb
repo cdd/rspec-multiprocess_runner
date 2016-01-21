@@ -37,6 +37,9 @@ module RSpec::MultiprocessRunner
     # before killing it. Defaults to 15.
     attr_accessor :example_timeout_seconds
 
+    # If true, set TEST_ENV_NUMBER="1" for the first worker (instead of "")
+    attr_accessor :first_is_1
+
     # Whether or not to fail Rake when an error occurs (typically when
     # examples fail). Defaults to `true`.
     attr_accessor :fail_on_error
@@ -107,6 +110,9 @@ module RSpec::MultiprocessRunner
       end
       if file_timeout_seconds
         cmd_parts << '--file-timeout' << file_timeout_seconds.to_s
+      end
+      if first_is_1
+        cmd_parts << '--first-is-1'
       end
       if pattern
         cmd_parts << '--pattern' << pattern

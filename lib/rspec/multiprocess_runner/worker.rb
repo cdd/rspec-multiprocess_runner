@@ -35,6 +35,7 @@ module RSpec::MultiprocessRunner
       @rspec_arguments = (options[:rspec_options] || []) + ["--format", ReportingFormatter.to_s]
       @example_timeout_seconds = options[:example_timeout_seconds]
       @file_timeout_seconds = options[:file_timeout_seconds]
+      @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
       @example_results = []
 
       # Use a single configuration and world across all individual runs
@@ -55,6 +56,14 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    def test_env_number
+      if environment_number == 1 && !@test_env_number_first_is_1
+        ""
+      else
+        environment_number.to_s
+      end
+    end
+
     ##
     # Forks the worker process. In the parent, returns the PID.
     def start
@@ -65,7 +74,7 @@ module RSpec::MultiprocessRunner
       else
         @coordinator_socket.close
         @pid = Process.pid
-        ENV["TEST_ENV_NUMBER"] = environment_number.to_s
+        ENV["TEST_ENV_NUMBER"] = test_env_number
 
         # reset TERM handler so that
         # - the coordinator's version (if any) is not executed twice

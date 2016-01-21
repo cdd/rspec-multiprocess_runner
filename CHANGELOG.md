@@ -1,4 +1,6 @@
-# 0.3.1
+# 0.4.0
+
+* Change TEST_ENV_NUMBER values to match parallel_tests (#10)
 
 # 0.3.0
 
