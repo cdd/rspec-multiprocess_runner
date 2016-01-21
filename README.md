@@ -4,13 +4,14 @@ This gem provides a mechanism for running a suite of RSpec tests in multiple
 processes on the same machine, potentially allowing substantial performance
 improvements.
 
-It differs from `parallel-tests` in that it uses a coordinator process to manage
+It differs from `parallel_tests` in that it uses a coordinator process to manage
 the workers, hand off work to them, and receive results. This means it can
 dynamically balance the workload among the processors. It also means it can
 provide consolidated results in the console.
 
-It does follow parallel-tests' `TEST_ENV_NUMBER` convention so it's easy to
-switch.
+It follows parallel_tests' environment variable conventions so it's easy to
+use them together. (E.g., parallel_tests has a very nice set of rake tasks
+for setting up parallel environments.)
 
 ## Benefits
 
