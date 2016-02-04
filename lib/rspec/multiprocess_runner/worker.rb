@@ -86,6 +86,9 @@ module RSpec::MultiprocessRunner
         # prevent RSpec from trapping INT, also
         ::RSpec::Core::Runner.instance_eval { def self.trap_interrupt; end }
 
+        # Disable RSpec's at_exit hook that would try to run whatever is in ARGV
+        ::RSpec::Core::Runner.disable_autorun!
+
         set_process_name
         run_loop
       end

@@ -1,5 +1,8 @@
 # 0.4.1
 
+* Use RSpec::Core::Runner.disable_autorun! to avoid error messages when workers
+  finish
+
 # 0.4.0
 
 * Change TEST_ENV_NUMBER values to match parallel_tests (#10)
