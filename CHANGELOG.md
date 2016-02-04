@@ -1,3 +1,5 @@
+# 0.4.2
+
 # 0.4.1
 
 * Use RSpec::Core::Runner.disable_autorun! to avoid error messages when workers
