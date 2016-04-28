@@ -1,3 +1,5 @@
+# 0.4.3
+
 # 0.4.2
 
 * Change to Rake.application.last_description as last_comment is deprecated
