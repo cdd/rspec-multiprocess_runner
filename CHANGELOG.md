@@ -1,5 +1,7 @@
 # 0.4.2
 
+* Change to Rake.application.last_description as last_comment is deprecated
+
 # 0.4.1
 
 * Use RSpec::Core::Runner.disable_autorun! to avoid error messages when workers
