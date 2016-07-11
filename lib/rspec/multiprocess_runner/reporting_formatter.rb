@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'rspec/multiprocess_runner'
+require 'rspec/core'
 require 'rspec/core/formatters/base_text_formatter'
 
 module RSpec::MultiprocessRunner
@@ -8,7 +9,14 @@ module RSpec::MultiprocessRunner
   # coordinator.
   #
   # @private
-  class ReportingFormatter < RSpec::Core::Formatters::BaseTextFormatter
+  class ReportingFormatter < RSpec::Core::Formatters::DocumentationFormatter
+    RSpec::Core::Formatters.register self,
+      :example_group_started,
+      :example_group_finished,
+      :example_passed,
+      :example_pending,
+      :example_failed
+
     class << self
       # The worker to which to report spec status. This has to be a class-level
       # attribute because you can't access the formatter instance used by
@@ -21,35 +29,32 @@ module RSpec::MultiprocessRunner
       @current_example_groups = []
     end
 
-    def example_group_started(example_group)
-      super(example_group)
+    def example_group_started(notification)
+      super(notification)
 
-      @current_example_groups.push(example_group.description.strip)
+      @current_example_groups.push(notification.group.description.strip)
     end
 
     def example_group_finished(example_group)
       @current_example_groups.pop
     end
 
-    def example_passed(example)
-      super(example)
-      report_example_result(:passed, example)
+    def example_passed(notification)
+      report_example_result(:passed, notification.example)
     end
 
-    def example_pending(example)
-      super(example)
-      details = capture_output { dump_pending }
-      pending_examples.clear
-      report_example_result(:pending, example, details)
+    def example_pending(notification)
+      details = capture_output { super(notification) }
+      report_example_result(:pending, notification.example, details)
     end
 
-    def example_failed(example)
-      super(example)
-      details = capture_output {
-        dump_failure_info(example)
-        dump_backtrace(example)
-      }
-      report_example_result(:failed, example, details)
+    def example_failed(notification)
+      details = capture_output { super(notification) }
+      report_example_result(
+        :failed,
+        notification.example,
+        notification.fully_formatted(1)
+      )
     end
 
     private
