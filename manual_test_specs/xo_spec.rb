@@ -1,6 +1,6 @@
 describe 'xo' do
-  it 'works' do    
-    # Kills the unfortunate worker that tries to run it
-    Process.kill(:KILL, Process.pid)
+  it 'works' do
+    sleep(0.6921296296296297)
+    expect(2 + 2).to eq(4)
   end
 end

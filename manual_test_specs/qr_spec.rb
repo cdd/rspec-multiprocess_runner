@@ -1,6 +1,6 @@
 describe 'qr' do
   it 'works' do
-    sleep(self.example.full_description[0,2].reverse.to_i(36).to_f / 1296)
+    sleep(0.7700617283950617)
     expect(2 + 2).to eq(4)
   end
 end
