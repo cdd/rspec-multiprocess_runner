@@ -3,6 +3,8 @@ require 'rspec/multiprocess_runner'
 require 'rspec/core'
 require 'rspec/core/formatters/base_text_formatter'
 
+require 'rspec/core/formatters_ext'
+
 module RSpec::MultiprocessRunner
   ##
   # RSpec formatter used by workers to communicate spec execution to the
