@@ -1,5 +1,7 @@
 # 0.4.3
 
+* Added support for RSpec 3. Did not maintain compatability with RSpec 2.
+
 # 0.4.2
 
 * Change to Rake.application.last_description as last_comment is deprecated
