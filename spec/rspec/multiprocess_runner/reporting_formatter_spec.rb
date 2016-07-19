@@ -73,6 +73,16 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
         /Failure\/Error:.*2 \+ 2.*5/
       )
     end
+
+    it "does not send an erroneous failure number" do
+      # This regex checks that the string does not contain, or more precisely:
+      # checks that every character, including newlines, is not preceded with
+      # '1) example group`.
+      expect(worker).to have_received(:report_example_result).with(
+        :failed, anything, anything,
+        /\A((?!1\) example group).)*\z/m
+      )
+    end
   end
 
   describe "when an example is pending" do
@@ -92,7 +102,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:pending, "example group·with details·is not implemented yet", 82, anything)
+        with(:pending, "example group·with details·is not implemented yet", 92, anything)
     end
 
     it "sends the formatted details also" do
