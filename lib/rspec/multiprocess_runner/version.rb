@@ -1,5 +1,5 @@
 module RSpec
   module MultiprocessRunner
-    VERSION = "0.4.3.pre"
+    VERSION = "0.5.0.pre"
   end
 end

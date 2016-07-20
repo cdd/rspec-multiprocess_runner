@@ -1,4 +1,4 @@
-# 0.4.3
+# 0.5.0
 
 * Added support for RSpec 3. Did not maintain compatability with RSpec 2.
 
