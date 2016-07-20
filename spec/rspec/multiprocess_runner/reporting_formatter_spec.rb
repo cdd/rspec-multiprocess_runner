@@ -7,10 +7,18 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
   let(:worker) { double('worker') }
   let(:output) { StringIO.new }
   let(:formatter) { RSpec::MultiprocessRunner::ReportingFormatter.new(output) }
+  let(:reporter)  { RSpec::Core::Reporter.new(RSpec.configuration) }
 
   before(:each) do
     allow(worker).to receive(:report_example_result).and_return(nil)
     RSpec::MultiprocessRunner::ReportingFormatter.worker = worker
+
+    reporter.register_listener formatter,
+      :example_group_started,
+      :example_group_finished,
+      :example_passed,
+      :example_pending,
+      :example_failed
   end
 
   after(:each) do
@@ -28,14 +36,14 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     }
 
     before do
-      group.run(formatter)
+      group.run(reporter)
     end
 
     it "reports the pass to the worker" do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:passed, "example group·with details·passes", 25, anything)
+        with(:passed, "example group·with details·passes", 33, anything)
     end
   end
 
@@ -49,20 +57,30 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     }
 
     before do
-      group.run(formatter)
+      group.run(reporter)
     end
 
     it "reports the failure to the worker" do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:failed, "example group·with details·fails", 46, anything)
+        with(:failed, "example group·with details·fails", 54, anything)
     end
 
     it "sends the formatted details also" do
       expect(worker).to have_received(:report_example_result).with(
         :failed, anything, anything,
         /Failure\/Error:.*2 \+ 2.*5/
+      )
+    end
+
+    it "does not send an erroneous failure number" do
+      # This regex checks that the string does not contain, or more precisely:
+      # checks that every character, including newlines, is not preceded with
+      # '1) example group`.
+      expect(worker).to have_received(:report_example_result).with(
+        :failed, anything, anything,
+        /\A((?!1\) example group).)*\z/m
       )
     end
   end
@@ -77,14 +95,14 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     }
 
     before do
-      group.run(formatter)
+      group.run(reporter)
     end
 
     it "reports the pending example to the worker" do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:pending, "example group·with details·is not implemented yet", 74, anything)
+        with(:pending, "example group·with details·is not implemented yet", 92, anything)
     end
 
     it "sends the formatted details also" do

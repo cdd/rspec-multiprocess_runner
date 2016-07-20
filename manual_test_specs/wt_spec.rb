@@ -1,8 +1,6 @@
-require File.expand_path('../spec_helper', __FILE__)
-
 describe 'wt' do
   it 'works' do
-    # Tests that the config from spec_helper remains available across runs
-    expect(test_sum(3, 6)).to eq(9)
+    sleep(0.8302469135802469)
+    expect(2 + 2).to eq(4)
   end
 end

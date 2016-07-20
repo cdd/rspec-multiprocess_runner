@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+def template(description:, failure: false)
+  return <<-TEMPLATE.gsub(/^\s+\|/, '')
+    |describe '#{description}' do
+    |  it '#{failure ? 'fails' : 'works'}' do
+    |    sleep(#{description.reverse.to_i(36).to_f / 1296})
+    |    expect(2 + 2).to eq(#{failure ? 5 : 4})
+    |  end
+    |end
+  TEMPLATE
+end
+
+('a'..'z').to_a.product(('a'..'z').to_a)
+  .map { |*chars| chars.join('') }
+  .each do |description|
+    File.open("./manual_test_specs/#{description}_spec.rb", 'w+')
+      .write(template(description: description))

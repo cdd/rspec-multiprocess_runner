@@ -1,7 +1,6 @@
 describe 'ax' do
   it 'works' do
-    # Forcefully kill the unlucky worker who gets this file
-    sleep 0.5
-    Process.kill(:KILL, Process.pid)
+    sleep(0.9243827160493827)
+    expect(2 + 2).to eq(4)
   end
 end

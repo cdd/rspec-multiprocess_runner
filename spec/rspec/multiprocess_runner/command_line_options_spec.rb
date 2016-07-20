@@ -76,7 +76,7 @@ module RSpec::MultiprocessRunner
         end
 
         it "has the first-is-1 flag" do
-          expect(parsed.first_is_1).to be_true
+          expect(parsed.first_is_1).to be_truthy
         end
 
         it "has no files" do
@@ -233,14 +233,14 @@ module RSpec::MultiprocessRunner
             %w(true 1).each do |val|
               it "treats #{var}=#{val.inspect} as set" do
                 stub_env(var, val)
-                expect(parsed.first_is_1).to be_true
+                expect(parsed.first_is_1).to be_truthy
               end
             end
 
             %w(false 0).each do |val|
               it "treats #{var}=#{val.inspect} as not set" do
                 stub_env(var, val)
-                expect(parsed.first_is_1).to be_false
+                expect(parsed.first_is_1).to be_falsey
               end
             end
           end
