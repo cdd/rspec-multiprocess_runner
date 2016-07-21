@@ -27,7 +27,7 @@ for setting up parallel environments.)
 
 ## Limitations
 
-* Only works with RSpec 3 (>= 2.99). Does not work with previous version of
+* Only works with RSpec 3 (>= 2.99). Does not work with previous versions of
   RSpec.
 * Does not work on Windows or JRuby. Since it relies on `fork(2)`, it probably
   never will.
