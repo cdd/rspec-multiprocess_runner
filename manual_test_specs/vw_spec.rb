@@ -1,6 +1,0 @@
-describe 'vw' do
-  it 'works' do
-    sleep(0.9128086419753086)
-    expect(2 + 2).to eq(4)
-  end
-end
