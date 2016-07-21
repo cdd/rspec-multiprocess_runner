@@ -16,3 +16,4 @@ end
   .each do |description|
     File.open("./manual_test_specs/#{description}_spec.rb", 'w+')
       .write(template(description: description))
+  end
