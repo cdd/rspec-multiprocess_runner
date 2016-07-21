@@ -1,6 +1,0 @@
-describe 'su' do
-  it 'works' do
-    sleep(0.8549382716049383)
-    expect(2 + 2).to eq(4)
-  end
-end
