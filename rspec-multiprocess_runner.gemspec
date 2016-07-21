@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Rhett Sutphin"]
   spec.email         = ["rhett@detailedbalance.net"]
 
-  spec.summary       = %q{A runner for RSpec 2 that uses multiple processes to execute specs in parallel}
+  spec.summary       = %q{A runner for RSpec 3 that uses multiple processes to execute specs in parallel}
   spec.homepage      = "https://github.com/cdd/rspec-multiprocess_runner"
   spec.license       = "MIT"
 
