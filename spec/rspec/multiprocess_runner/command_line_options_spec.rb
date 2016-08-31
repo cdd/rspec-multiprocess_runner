@@ -354,7 +354,7 @@ module RSpec::MultiprocessRunner
         let(:arguments) { %w(--pattern **/?k_*spec.rb) }
 
         it 'includes only files that match the pattern' do
-          expect(actual_files).to eq(%w(
+          expect(actual_files.sort).to eq(%w(
             features/ak_spec.rb
             features/bk_spec.rb
             features/ck_spec.rb
@@ -364,7 +364,7 @@ module RSpec::MultiprocessRunner
             spec/models/ak_spec.rb
             spec/models/bk_spec.rb
             spec/models/ck_spec.rb
-          ))
+          ).sort)
         end
       end
 
