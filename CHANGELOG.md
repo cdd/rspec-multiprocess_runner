@@ -1,3 +1,9 @@
+# 0.5.1
+
+* Added flag '--use-given-order' that respects the order files are passed on the
+  commandline. The default is still to sort by file size.
+* Removed some unneeded RSpec 2 configuration.
+
 # 0.5.0
 
 * Added support for RSpec 3. Did not maintain compatability with RSpec 2.
