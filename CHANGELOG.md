@@ -1,3 +1,5 @@
+# 0.5.2
+
 # 0.5.1
 
 * Added flag '--use-given-order' that respects the order files are passed on the
