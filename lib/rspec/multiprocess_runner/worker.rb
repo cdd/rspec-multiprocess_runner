@@ -37,12 +37,6 @@ module RSpec::MultiprocessRunner
       @file_timeout_seconds = options[:file_timeout_seconds]
       @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
       @example_results = []
-
-      # Use a single configuration and world across all individual runs
-      # This will not be necessary to do manually in RSpec 3 — it does not
-      # reset the globals after each run.
-      @rspec_configuration = RSpec.configuration
-      @rspec_world = RSpec.world
     end
 
     ##
@@ -277,8 +271,6 @@ module RSpec::MultiprocessRunner
       @current_file = spec_file
       set_process_name
 
-      RSpec.configuration = @rspec_configuration
-      RSpec.world = @rspec_world
       # If we don't do this, every previous spec is run every time run is called
       RSpec.world.example_groups.clear
 

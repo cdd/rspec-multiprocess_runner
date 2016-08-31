@@ -11,7 +11,7 @@ module RSpec::MultiprocessRunner
       @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
       @log_failing_files = options[:log_failing_files]
       @rspec_options = options[:rspec_options]
-      @spec_files = sort_files(files)
+      @spec_files = options[:use_given_order] ? files : sort_files(files)
       @workers = []
       @stopped_workers = []
     end
