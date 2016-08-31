@@ -52,7 +52,7 @@ module RSpec::MultiprocessRunner
         else
           Dir[path.join(pattern).relative_path_from(relative_root)]
         end
-      end.sort_by { |path| path.downcase }
+      end
     end
 
     private
