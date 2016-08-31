@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1
+      :first_is_1, :use_given_order
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -19,6 +19,7 @@ module RSpec::MultiprocessRunner
       self.log_failing_files = nil
       self.rspec_options = []
       self.first_is_1 = default_first_is_1
+      self.use_given_order = false
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -112,6 +113,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("--first-is-1", "Use \"1\" for the first worker's TEST_ENV_NUMBER (instead of \"\")#{" (enabled in environment)" if first_is_1}") do
           self.first_is_1 = true
+        end
+
+        parser.on("-O", "--use-given-order", "Use the order that the files are given as arguments") do
+          self.use_given_order = true
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

@@ -61,7 +61,7 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
@@ -81,6 +81,10 @@ module RSpec::MultiprocessRunner
 
         it "has no files" do
           expect(parsed.explicit_files_or_directories).to be_nil
+        end
+
+        it "has the use-given-order flag" do
+          expect(parsed.use_given_order).to be_truthy
         end
 
         include_examples "no errors"
