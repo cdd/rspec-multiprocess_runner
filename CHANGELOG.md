@@ -1,5 +1,8 @@
 # 0.5.2
 
+* Added additional exit codes to multirspec runner. 0 for success, 1 for
+  failures, 2 for some workers died, 4 for some files didn't get run.
+
 # 0.5.1
 
 * Added flag '--use-given-order' that respects the order files are passed on the

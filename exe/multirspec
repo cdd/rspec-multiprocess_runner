@@ -30,6 +30,4 @@ trap("TERM") do
   Kernel.exit(3)
 end
 
-success = coordinator.run
-
-exit(success ? 0 : 1)
+exit coordinator.run
