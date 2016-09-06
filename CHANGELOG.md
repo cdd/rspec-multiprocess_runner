@@ -1,3 +1,7 @@
+# 1.0.0
+
+* Stop supporting Ruby < v2.0
+
 # 0.5.2
 
 * Added additional exit codes to multirspec runner. 0 for success, 1 for
