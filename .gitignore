@@ -10,3 +10,4 @@
 /tmp/
 /manual_test_specs/*
 !/manual_test_specs/.keep
+/vendor

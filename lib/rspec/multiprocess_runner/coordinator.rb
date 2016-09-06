@@ -25,11 +25,19 @@ module RSpec::MultiprocessRunner
       quit_all_workers
       print_summary
 
-      !failed?
+      exit_code
     end
 
     def failed?
-      !failed_workers.empty? || !@spec_files.empty? || any_example_failed?
+      0 < exit_code
+    end
+
+    def exit_code
+      exit_code = 0
+      exit_code |= 1 if any_example_failed?
+      exit_code |= 2 if !failed_workers.empty?
+      exit_code |= 4 if !@spec_files.empty?
+      exit_code
     end
 
     def shutdown(options={})
