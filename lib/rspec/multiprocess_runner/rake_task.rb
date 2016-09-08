@@ -59,6 +59,9 @@ module RSpec::MultiprocessRunner
     # failed.
     attr_accessor :log_failing_files
 
+    # Use order of files as given on the command line
+    attr_accessor :use_given_order
+
     # Command line options to pass to the RSpec workers. Defaults to `nil`.
     attr_accessor :rspec_opts
 
@@ -119,6 +122,9 @@ module RSpec::MultiprocessRunner
       end
       if log_failing_files
         cmd_parts << '--log-failing-files' << log_failing_files
+      end
+      if use_given_order
+        cmd_parts << '--use-given-order'
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

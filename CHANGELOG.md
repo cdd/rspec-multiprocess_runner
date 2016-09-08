@@ -1,4 +1,7 @@
-# 1.0.1.pre
+# 1.1.0
+
+* Redo exit codes for arguments, signal hanlding, and exceptions
+* Update rake task to handle use given order flag
 
 # 1.0.0
 

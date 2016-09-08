@@ -109,6 +109,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with the use given order flag" do
+      it "is passed into the comand" do
+        task.use_given_order = true
+        expect(spec_command).to include_elements_in_order("--use-given-order")
+      end
+    end
+
     context "with everything" do
       it "has all the arguments in an order that will work" do
         task.pattern = "*.feature"
@@ -117,6 +124,7 @@ module RSpec::MultiprocessRunner
         task.file_timeout_seconds = 600
         task.log_failing_files = "afile.txt"
         task.first_is_1 = true
+        task.use_given_order = true
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -127,6 +135,7 @@ module RSpec::MultiprocessRunner
           "--first-is-1",
           "--pattern", "*.feature",
           "--log-failing-files", "afile.txt",
+          "--use-given-order",
           "features",
           "--",
           "--backtrace"
