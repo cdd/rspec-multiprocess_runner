@@ -4,7 +4,7 @@ require 'rspec/multiprocess_runner/command_line_options'
 require 'rspec/multiprocess_runner/coordinator'
 
 options = RSpec::MultiprocessRunner::CommandLineOptions.new.parse(ARGV.dup)
-exit(2) unless options
+exit(64) unless options
 
 coordinator = RSpec::MultiprocessRunner::Coordinator.new(
   options.worker_count,
@@ -22,12 +22,17 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
 trap("INT") do
   $stderr.puts "INT happened"
   coordinator.shutdown(print_summary: true)
-  Kernel.exit(4)
+  Kernel.exit(65)
 end
 
 trap("TERM") do
   coordinator.shutdown
-  Kernel.exit(3)
+  Kernel.exit(66)
 end
 
-exit coordinator.run
+begin
+  exit coordinator.run
+rescue => e
+  warn e.message
+  exit(67)
+end
