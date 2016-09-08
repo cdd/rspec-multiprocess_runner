@@ -152,8 +152,10 @@ module RSpec::MultiprocessRunner
       begin
         Timeout.timeout(timeout) do
           $stderr.puts "#{message} with TERM" if message
-          Process.kill(:TERM, pid)
-          Process.wait(pid)
+          if pid
+            Process.kill(:TERM, pid)
+            Process.wait(pid)
+          end
         end
       rescue Timeout::Error
         $stderr.puts "#{message} with KILL" if message

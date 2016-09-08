@@ -33,6 +33,8 @@ end
 begin
   exit coordinator.run
 rescue => e
+  warn e.class
   warn e.message
+  warn e.backtrace
   exit(67)
 end
