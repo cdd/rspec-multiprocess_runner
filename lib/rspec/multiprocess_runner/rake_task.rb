@@ -65,6 +65,15 @@ module RSpec::MultiprocessRunner
     # Command line options to pass to the RSpec workers. Defaults to `nil`.
     attr_accessor :rspec_opts
 
+    # Port to use for TCP communication. Defaults to `2222`.
+    attr_accessor :port
+
+    # Be a slave to a master at hostname. Defaults to `false`
+    attr_accessor :slave
+
+    # Hostname where server is running. Defaults to `localhost`
+    attr_accessor :hostname
+
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
       @verbose         = true
@@ -128,6 +137,15 @@ module RSpec::MultiprocessRunner
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)
+      end
+      if port
+        cmd_parts << '--port' << port
+      end
+      if slave
+        cmd_parts << '--slave'
+      end
+      if hostname
+        cmd_parts << '--hostname' << hostname
       end
       if rspec_opts
         cmd_parts << '--'
