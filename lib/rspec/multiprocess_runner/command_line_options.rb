@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1, :use_given_order
+      :first_is_1, :use_given_order, :port, :master, :hostname
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -20,6 +20,9 @@ module RSpec::MultiprocessRunner
       self.rspec_options = []
       self.first_is_1 = default_first_is_1
       self.use_given_order = false
+      self.port = 2222
+      self.hostname = "localhost"
+      self.master = true
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -117,6 +120,18 @@ module RSpec::MultiprocessRunner
 
         parser.on("-O", "--use-given-order", "Use the order that the files are given as arguments") do
           self.use_given_order = true
+        end
+
+        parser.on("-p", "--port PORT", "Communicate using port (#{print_default port})") do |port|
+          self.port = port
+        end
+
+        parser.on("-h", "--hostname HOSTNAME", "Hostname for master machines (#{print_default hostname})") do |hostname|
+          self.hostname = hostname
+        end
+
+        parser.on("-s", "--slave", "This is a slave process") do
+          self.master = false
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'rspec/multiprocess_runner'
 require 'rspec/multiprocess_runner/worker'
+require 'rspec/multiprocess_runner/file_coordinator'
 
 module RSpec::MultiprocessRunner
   class Coordinator
@@ -11,9 +12,10 @@ module RSpec::MultiprocessRunner
       @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
       @log_failing_files = options[:log_failing_files]
       @rspec_options = options[:rspec_options]
-      @spec_files = options[:use_given_order] ? files : sort_files(files)
+      @file_buffer = []
       @workers = []
       @stopped_workers = []
+      @file_coordinator = FileCoordinator.new(files, options)
     end
 
     def run
@@ -21,6 +23,7 @@ module RSpec::MultiprocessRunner
       expected_worker_numbers.each do |n|
         create_and_start_worker_if_necessary(n)
       end
+      add_file_to_buffer
       run_loop
       quit_all_workers
       print_summary
@@ -36,7 +39,7 @@ module RSpec::MultiprocessRunner
       exit_code = 0
       exit_code |= 1 if any_example_failed?
       exit_code |= 2 if !failed_workers.empty?
-      exit_code |= 4 if !@spec_files.empty?
+      exit_code |= 4 if work_left_to_do?
       exit_code
     end
 
@@ -104,7 +107,19 @@ module RSpec::MultiprocessRunner
     end
 
     def work_left_to_do?
-      !@spec_files.empty?
+      @file_buffer.any?
+    end
+
+    def add_file_to_buffer
+      file = @file_coordinator.get_file
+      @file_buffer << file if file
+    end
+
+    def get_file
+      if work_left_to_do?
+        add_file_to_buffer
+        @file_buffer.shift
+      end
     end
 
     def failed_workers
@@ -120,7 +135,7 @@ module RSpec::MultiprocessRunner
           if worker_status == :dead
             reap_one_worker(ready_worker, "died")
           elsif work_left_to_do? && !ready_worker.working?
-            ready_worker.run_file(@spec_files.shift)
+            ready_worker.run_file(get_file)
           end
         end
       end
@@ -159,7 +174,8 @@ module RSpec::MultiprocessRunner
         )
         @workers << new_worker
         new_worker.start
-        new_worker.run_file(@spec_files.shift)
+        file = get_file
+        new_worker.run_file(file)
       end
     end
 
@@ -206,10 +222,10 @@ module RSpec::MultiprocessRunner
     end
 
     def print_skipped_files_details
-      return if @spec_files.empty?
+      return if !work_left_to_do?
       puts
       puts "Skipped files:"
-      @spec_files.each do |spec_file|
+      @file_coordinator.remaining_files.each do |spec_file|
         puts "  - #{spec_file}"
       end
     end
@@ -263,7 +279,7 @@ module RSpec::MultiprocessRunner
       failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
       pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
       process_failure_count = failed_workers.size
-      skipped_count = @spec_files.size
+      skipped_count = @file_coordinator.remaining_files.size
 
       # Copied from RSpec
       summary = pluralize(example_count, "example")
