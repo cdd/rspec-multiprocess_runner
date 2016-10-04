@@ -18,7 +18,8 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
     use_given_order: options.use_given_order,
     master: options.master,
     port: options.port,
-    hostname: options.hostname
+    hostname: options.hostname,
+    max_slaves: options.max_slaves
   }
 )
 

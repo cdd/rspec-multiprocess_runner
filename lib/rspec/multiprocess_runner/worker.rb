@@ -304,12 +304,21 @@ module RSpec::MultiprocessRunner
   class ExampleResult
     attr_reader :status, :description, :details, :file_path, :time_finished
 
-    def initialize(example_complete_message)
+    def initialize(example_complete_message, time = Time.now)
+      @hash = example_complete_message
       @status = example_complete_message["example_status"]
       @description = example_complete_message["description"]
       @details = example_complete_message["details"]
       @file_path = example_complete_message["file_path"]
-      @time_finished = Time.now
+      @time_finished = time
+    end
+
+    def to_json(options = nil)
+      { hash: @hash, time: @time_finished.iso8601(9) }.to_json
+    end
+
+    def self.from_json_parse(hash)
+      ExampleResult.new(hash["hash"], Time.iso8601(hash["time"]))
     end
   end
 end

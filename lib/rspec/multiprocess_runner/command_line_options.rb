@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1, :use_given_order, :port, :master, :hostname
+      :first_is_1, :use_given_order, :port, :master, :hostname, :max_slaves
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -23,6 +23,7 @@ module RSpec::MultiprocessRunner
       self.port = 2222
       self.hostname = "localhost"
       self.master = true
+      self.max_slaves = 5
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -132,6 +133,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("-s", "--slave", "This is a slave process") do
           self.master = false
+        end
+
+        parser.on("-n", "--num-max-slaves MAX_SLAVES", "Maximum number of slaves permitted (#{print_default max_slaves})") do |max_slaves|
+          self.max_slaves = max_slaves
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

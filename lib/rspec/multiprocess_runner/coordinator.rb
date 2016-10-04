@@ -26,6 +26,7 @@ module RSpec::MultiprocessRunner
       add_file_to_buffer
       run_loop
       quit_all_workers
+      @file_coordinator.finished
       print_summary
 
       exit_code
@@ -150,6 +151,7 @@ module RSpec::MultiprocessRunner
     def mark_worker_as_stopped(worker)
       @stopped_workers << worker
       @workers.reject! { |w| w == worker }
+      @file_coordinator.send_results(worker.example_results)
     end
 
     def reap_stalled_workers
@@ -214,11 +216,11 @@ module RSpec::MultiprocessRunner
     end
 
     def combine_example_results
-      (@workers + @stopped_workers).flat_map(&:example_results).sort_by { |r| r.time_finished }
+      @file_coordinator.results.sort_by { |r| r.time_finished } + @file_coordinator.missing_files.map { |file| ExampleResult.new({ "example_status" => "failed", "file_path" => file, "description" => file, "details" => "communication error with slave rspec" }) }
     end
 
     def any_example_failed?
-      (@workers + @stopped_workers).detect { |w| w.example_results.detect { |r| r.status == "failed" } }
+      @file_coordinator.results.detect { |r| r.status == "failed" }
     end
 
     def print_skipped_files_details
