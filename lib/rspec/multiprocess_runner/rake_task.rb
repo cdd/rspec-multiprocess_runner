@@ -74,6 +74,9 @@ module RSpec::MultiprocessRunner
     # Hostname where server is running. Defaults to `localhost`
     attr_accessor :hostname
 
+    # Max number of connections to master. Defaults to `5`
+    attr_accessor :max_slaves
+
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
       @verbose         = true
@@ -146,6 +149,9 @@ module RSpec::MultiprocessRunner
       end
       if hostname
         cmd_parts << '--hostname' << hostname
+      end
+      if max_slaves
+        cmd_parts << '--num-max-slaves' << max_slaves
       end
       if rspec_opts
         cmd_parts << '--'
