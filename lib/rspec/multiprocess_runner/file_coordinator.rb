@@ -90,6 +90,7 @@ module RSpec::MultiprocessRunner
 
     def run_server
       server = TCPServer.new @port
+      ObjectSpace.define_finalizer( self, proc { server.close } )
       while @threads.size < @max_threads
         @threads << Thread.start(server.accept) do |client|
           begin
