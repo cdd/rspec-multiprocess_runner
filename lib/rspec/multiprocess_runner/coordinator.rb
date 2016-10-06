@@ -15,6 +15,7 @@ module RSpec::MultiprocessRunner
       @file_buffer = []
       @workers = []
       @stopped_workers = []
+      @worker_results = []
       @file_coordinator = FileCoordinator.new(files, options)
     end
 
@@ -23,10 +24,11 @@ module RSpec::MultiprocessRunner
       expected_worker_numbers.each do |n|
         create_and_start_worker_if_necessary(n)
       end
-      add_file_to_buffer
-      run_loop
-      quit_all_workers
-      @file_coordinator.finished
+      (0..1).each do
+        run_loop
+        quit_all_workers
+        @file_coordinator.finished
+      end
       print_summary
 
       exit_code
@@ -76,6 +78,7 @@ module RSpec::MultiprocessRunner
     end
 
     def run_loop
+      add_file_to_buffer
       loop do
         act_on_available_worker_messages(0.3)
         reap_stalled_workers
@@ -124,7 +127,7 @@ module RSpec::MultiprocessRunner
     end
 
     def failed_workers
-      @stopped_workers.select { |w| w.deactivation_reason }
+      @file_coordinator.failed_workers
     end
 
     def act_on_available_worker_messages(timeout)
@@ -137,9 +140,16 @@ module RSpec::MultiprocessRunner
             reap_one_worker(ready_worker, "died")
           elsif work_left_to_do? && !ready_worker.working?
             ready_worker.run_file(get_file)
+            send_results(ready_worker)
           end
         end
       end
+    end
+
+    def send_results(worker)
+      results_to_send = worker.example_results - @worker_results
+      @worker_results += results_to_send
+      @file_coordinator.send_results(results_to_send)
     end
 
     def reap_one_worker(worker, reason)
@@ -151,7 +161,8 @@ module RSpec::MultiprocessRunner
     def mark_worker_as_stopped(worker)
       @stopped_workers << worker
       @workers.reject! { |w| w == worker }
-      @file_coordinator.send_results(worker.example_results)
+      send_results(worker)
+      @file_coordinator.send_worker_status(worker) if worker.deactivation_reason
     end
 
     def reap_stalled_workers
@@ -207,7 +218,8 @@ module RSpec::MultiprocessRunner
       print_skipped_files_details
       print_pending_example_details(by_status_and_time["pending"])
       print_failed_example_details(by_status_and_time["failed"])
-      log_failed_files(by_status_and_time["failed"]) if @log_failing_files
+      print_missing_files
+      log_failed_files(by_status_and_time["failed"].map(&:file_path).uniq  + @file_coordinator.missing_files) if @log_failing_files
       print_failed_process_details
       puts
       print_elapsed_time(elapsed)
@@ -216,7 +228,7 @@ module RSpec::MultiprocessRunner
     end
 
     def combine_example_results
-      @file_coordinator.results.sort_by { |r| r.time_finished } + @file_coordinator.missing_files.map { |file| ExampleResult.new({ "example_status" => "failed", "file_path" => file, "description" => file, "details" => "communication error with slave rspec" }) }
+      @file_coordinator.results.sort_by { |r| r.time_finished }
     end
 
     def any_example_failed?
@@ -253,19 +265,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    def log_failed_files(failed_example_results)
-      return if failed_example_results.nil?
-
-      failing_files = Hash.new { |h, k| h[k] = 0 }
-      failed_example_results.each do |failure|
-        failing_files[failure.file_path] += 1
-      end
-
+    def log_failed_files(failed_files)
+      return if failed_files.nil?
       puts
       puts "Writing failures to file: #{@log_failing_files}"
       File.open(@log_failing_files, "w+") do |io|
-        failing_files.each do |(k, _)|
-          io << k
+        failed_files.each do |file|
+          io << file
           io << "\n"
         end
       end
@@ -280,6 +286,7 @@ module RSpec::MultiprocessRunner
       example_count = by_status_and_time.map { |status, results| results.size }.inject(0) { |sum, ct| sum + ct }
       failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
       pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
+      missing_count = @file_coordinator.missing_files.size
       process_failure_count = failed_workers.size
       skipped_count = @file_coordinator.remaining_files.size
 
@@ -289,6 +296,7 @@ module RSpec::MultiprocessRunner
       summary << ", #{pending_count} pending" if pending_count > 0
       summary << ", " << pluralize(process_failure_count, "failed proc") if process_failure_count > 0
       summary << ", " << pluralize(skipped_count, "skipped file") if skipped_count > 0
+      summary << ", " << pluralize(missing_count, "missing file") if missing_count > 0
       puts summary
     end
 
@@ -297,8 +305,15 @@ module RSpec::MultiprocessRunner
       puts
       puts "Failed processes:"
       failed_workers.each do |worker|
-        puts "  - #{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
+        puts "  - #{worker.slave}:#{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
       end
+    end
+
+    def print_missing_files
+      return if @file_coordinator.missing_files.empty?
+      puts
+      puts "Missing files from disconnects:"
+      @file_coordinator.missing_files.each { |file| puts "  + #{file} was given to a slave, which disconnected" }
     end
 
     def print_elapsed_time(seconds_elapsed)
