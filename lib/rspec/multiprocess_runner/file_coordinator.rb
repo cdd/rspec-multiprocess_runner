@@ -30,7 +30,7 @@ module RSpec::MultiprocessRunner
           @tcp_socket = TCPSocket.new @hostname, @port
         rescue
           raise if count < 0
-          count--
+          count -= 1
           sleep(6)
         end
       end
