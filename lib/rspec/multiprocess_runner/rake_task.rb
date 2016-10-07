@@ -138,11 +138,8 @@ module RSpec::MultiprocessRunner
       if use_given_order
         cmd_parts << '--use-given-order'
       end
-      if files_or_directories
-        cmd_parts.concat(files_or_directories)
-      end
       if port
-        cmd_parts << '--port' << port
+        cmd_parts << '--port' << port.to_s
       end
       if slave
         cmd_parts << '--slave'
@@ -151,7 +148,10 @@ module RSpec::MultiprocessRunner
         cmd_parts << '--hostname' << hostname
       end
       if max_slaves
-        cmd_parts << '--num-max-slaves' << max_slaves
+        cmd_parts << '--num-max-slaves' << max_slaves.to_s
+      end
+      if files_or_directories
+        cmd_parts.concat(files_or_directories)
       end
       if rspec_opts
         cmd_parts << '--'

@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
     let(:parsed) { CommandLineOptions.new.parse(arguments, error_stream) }
 
     describe '#parse' do
-      shared_examples "the default timeout time and number of processes" do
+      shared_examples "the default timeout time and number of processes and networking" do
         it "uses 3 processes" do
           expect(parsed.worker_count).to eq(3)
         end
@@ -18,6 +18,22 @@ module RSpec::MultiprocessRunner
 
         it "has a 15 second per-example timeout" do
           expect(parsed.example_timeout_seconds).to eq(15)
+        end
+
+        it "has no slave flag" do
+          expect(parsed.master).to be_truthy
+        end
+
+        it "has no hostname flag" do
+          expect(parsed.hostname).to eq("localhost")
+        end
+
+        it "has no port flag" do
+          expect(parsed.port).to eq(2222)
+        end
+
+        it "has no num-max-slaves flag" do
+          expect(parsed.max_slaves).to eq(5)
         end
       end
 
@@ -31,7 +47,7 @@ module RSpec::MultiprocessRunner
       describe "by default" do
         let(:arguments) { [] }
 
-        include_examples "the default timeout time and number of processes"
+        include_examples "the default timeout time and number of processes and networking"
         include_examples "no errors"
 
         it "has no files or directories" do
@@ -56,12 +72,12 @@ module RSpec::MultiprocessRunner
           expect(parsed.explicit_files_or_directories).to eq(arguments)
         end
 
-        include_examples "the default timeout time and number of processes"
+        include_examples "the default timeout time and number of processes and networking"
         include_examples "no errors"
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --slave --hostname bob --port 8000 --num-max-slaves 2) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
@@ -85,6 +101,22 @@ module RSpec::MultiprocessRunner
 
         it "has the use-given-order flag" do
           expect(parsed.use_given_order).to be_truthy
+        end
+
+        it "has the slave flag" do
+          expect(parsed.master).to be_falsey
+        end
+
+        it "has the hostname flag" do
+          expect(parsed.hostname).to eq("bob")
+        end
+
+        it "has the port flag" do
+          expect(parsed.port).to eq(8000)
+        end
+
+        it "has the num-max-slaves flag" do
+          expect(parsed.max_slaves).to eq(2)
         end
 
         include_examples "no errors"
@@ -125,7 +157,7 @@ module RSpec::MultiprocessRunner
           expect(parsed.rspec_options).to eq(%w(--backtrace -c))
         end
 
-        include_examples "the default timeout time and number of processes"
+        include_examples "the default timeout time and number of processes and networking"
         include_examples "no errors"
       end
 

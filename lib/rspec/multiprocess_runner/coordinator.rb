@@ -24,7 +24,7 @@ module RSpec::MultiprocessRunner
       expected_worker_numbers.each do |n|
         create_and_start_worker_if_necessary(n)
       end
-      (0..1).each do
+      (0..1).each do # rerun files missing from disconnects
         run_loop
         quit_all_workers
         @file_coordinator.finished
@@ -42,7 +42,7 @@ module RSpec::MultiprocessRunner
       exit_code = 0
       exit_code |= 1 if any_example_failed?
       exit_code |= 2 if !failed_workers.empty?
-      exit_code |= 4 if work_left_to_do?
+      exit_code |= 4 if work_left_to_do? || @file_coordinator.missing_files.any?
       exit_code
     end
 

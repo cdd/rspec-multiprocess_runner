@@ -123,11 +123,11 @@ module RSpec::MultiprocessRunner
           self.use_given_order = true
         end
 
-        parser.on("-p", "--port PORT", "Communicate using port (#{print_default port})") do |port|
+        parser.on("-p", "--port PORT", Integer, "Communicate using port (#{print_default port})") do |port|
           self.port = port
         end
 
-        parser.on("-h", "--hostname HOSTNAME", "Hostname for master machines (#{print_default hostname})") do |hostname|
+        parser.on("-H", "--hostname HOSTNAME", "Hostname for master machines (#{print_default hostname})") do |hostname|
           self.hostname = hostname
         end
 
@@ -135,7 +135,7 @@ module RSpec::MultiprocessRunner
           self.master = false
         end
 
-        parser.on("-n", "--num-max-slaves MAX_SLAVES", "Maximum number of slaves permitted (#{print_default max_slaves})") do |max_slaves|
+        parser.on("-n", "--num-max-slaves MAX_SLAVES", Integer, "Maximum number of slaves permitted (#{print_default max_slaves})") do |max_slaves|
           self.max_slaves = max_slaves
         end
 

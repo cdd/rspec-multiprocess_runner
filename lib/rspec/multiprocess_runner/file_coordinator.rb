@@ -121,7 +121,6 @@ module RSpec::MultiprocessRunner
           break
         end
       end
-      socket.close
     end
 
     def work_left_to_do?
