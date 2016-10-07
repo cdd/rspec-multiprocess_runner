@@ -127,7 +127,7 @@ module RSpec::MultiprocessRunner
           self.port = port
         end
 
-        parser.on("-H", "--hostname HOSTNAME", "Hostname for master machines (#{print_default hostname})") do |hostname|
+        parser.on("-H", "--hostname HOSTNAME", "Hostname of master (#{print_default hostname})") do |hostname|
           self.hostname = hostname
         end
 
