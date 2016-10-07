@@ -109,15 +109,15 @@ module RSpec::MultiprocessRunner
       loop do
         raw_response = socket.gets
         break unless raw_response
-        response = JSON.parse(raw_response)
-        if response[0] == COMMAND_RESULTS && results = response[1].map { |result|
+        command, results, slave = JSON.parse(raw_response)
+        if command == COMMAND_RESULTS && results = results.map { |result|
           ExampleResult.from_json_parse(result) }
           @results += results
-        elsif response[0] == COMMAND_PROCESS && response[1]
-          @failed_workers << MockWorker.from_json_parse(response[1], response[2] || unknown)
-        elsif response[0] == COMMAND_FILE
+        elsif command == COMMAND_PROCESS && results
+          @failed_workers << MockWorker.from_json_parse(results, slave || "unknown")
+        elsif command == COMMAND_FILE
           socket.puts @spec_files.shift
-        elsif response[0] == COMMAND_FINISHED
+        elsif command == COMMAND_FINISHED
           break
         end
       end

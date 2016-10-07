@@ -19,22 +19,6 @@ module RSpec::MultiprocessRunner
   #   actually run specs.
   #
   # @private
-  class MockWorker
-    attr_reader :pid, :environment_number, :current_file, :deactivation_reason, :slave
-
-    def initialize(hash, slave)
-      @pid = hash["pid"]
-      @environment_number = hash["environment_number"]
-      @current_file = hash["current_file"]
-      @deactivation_reason = hash["deactivation_reason"]
-      @slave = slave
-    end
-
-    def self.from_json_parse(hash, slave)
-      MockWorker.new(hash, slave)
-    end
-  end
-
   class Worker
     attr_reader :pid, :environment_number, :example_results, :current_file
     attr_accessor :deactivation_reason
@@ -317,6 +301,22 @@ module RSpec::MultiprocessRunner
 
     def send_message(socket, message_hash)
       socket.puts(message_hash.to_json)
+    end
+  end
+
+  class MockWorker
+    attr_reader :pid, :environment_number, :current_file, :deactivation_reason, :slave
+
+    def initialize(hash, slave)
+      @pid = hash["pid"]
+      @environment_number = hash["environment_number"]
+      @current_file = hash["current_file"]
+      @deactivation_reason = hash["deactivation_reason"]
+      @slave = slave
+    end
+
+    def self.from_json_parse(hash, slave)
+      MockWorker.new(hash, slave)
     end
   end
 
