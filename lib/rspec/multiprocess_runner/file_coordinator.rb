@@ -10,6 +10,7 @@ module RSpec::MultiprocessRunner
     COMMAND_RESULTS = "results"
     COMMAND_PROCESS = "process"
     COMMAND_FINISHED = "finished"
+    COMMAND_START = "start"
 
     def initialize(files, options={})
       @spec_files = []
@@ -27,16 +28,21 @@ module RSpec::MultiprocessRunner
         @slave_socket, master_socket = Socket.pair(:UNIX, :STREAM)
         Thread.start { server_connection_established(master_socket) }
       else
+        print "connecting to server"
         count = 100
         while @slave_socket.nil? do
           begin
             @slave_socket = TCPSocket.new @hostname, @port
+            raise unless start?
           rescue
+            @slave_socket = nil
             raise if count < 0
             count -= 1
+            print '.'
             sleep(6)
           end
         end
+        puts
       end
       ObjectSpace.define_finalizer( self, proc { @slave_socket.close } )
     end
@@ -119,12 +125,24 @@ module RSpec::MultiprocessRunner
           socket.puts @spec_files.shift
         elsif command == COMMAND_FINISHED
           break
+        elsif command == COMMAND_START
+          socket.puts COMMAND_START
         end
       end
     end
 
     def work_left_to_do?
       !@spec_files.empty?
+    end
+
+    def start?
+      begin
+        @slave_socket.puts [COMMAND_START].to_json
+        response = @slave_socket.gets
+        response && response.chomp == COMMAND_START
+      rescue Errno::EPIPE
+        false
+      end
     end
   end
 end
