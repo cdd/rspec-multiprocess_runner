@@ -28,7 +28,6 @@ module RSpec::MultiprocessRunner
         @slave_socket, master_socket = Socket.pair(:UNIX, :STREAM)
         Thread.start { server_connection_established(master_socket) }
       else
-        print "connecting to server"
         count = 100
         while @slave_socket.nil? do
           begin
@@ -38,7 +37,6 @@ module RSpec::MultiprocessRunner
             @slave_socket = nil
             raise if count < 0
             count -= 1
-            print '.'
             sleep(6)
           end
         end
