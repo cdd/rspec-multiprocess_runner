@@ -219,7 +219,7 @@ module RSpec::MultiprocessRunner
       print_pending_example_details(by_status_and_time["pending"])
       print_failed_example_details(by_status_and_time["failed"])
       print_missing_files
-      log_failed_files(by_status_and_time["failed"].map(&:file_path).uniq  + @file_coordinator.missing_files) if @log_failing_files
+      log_failed_files(by_status_and_time["failed"].map(&:file_path).uniq  + @file_coordinator.missing_files.to_a) if @log_failing_files
       print_failed_process_details
       puts
       print_elapsed_time(elapsed)
