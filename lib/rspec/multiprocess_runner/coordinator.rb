@@ -2,6 +2,7 @@
 require 'rspec/multiprocess_runner'
 require 'rspec/multiprocess_runner/worker'
 require 'rspec/multiprocess_runner/file_coordinator'
+require 'pry'
 
 module RSpec::MultiprocessRunner
   class Coordinator
@@ -211,8 +212,8 @@ module RSpec::MultiprocessRunner
 
     def print_summary
       elapsed = Time.now - @start_time
-      by_status_and_time = combine_example_results.each_with_object({}) do |result, idx|
-        (idx[result.status] ||= []) << result
+      by_status_and_time = combine_example_results.each_with_object(Hash.new { |h, k| h[k] = [] }) do |result, idx|
+        idx[result.status] << result
       end
 
       print_skipped_files_details
