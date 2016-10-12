@@ -65,6 +65,18 @@ module RSpec::MultiprocessRunner
     # Command line options to pass to the RSpec workers. Defaults to `nil`.
     attr_accessor :rspec_opts
 
+    # Port to use for TCP communication. Defaults to `2222`.
+    attr_accessor :port
+
+    # Be a node to a head node at hostname. Defaults to `false`
+    attr_accessor :node
+
+    # Hostname of head node. Defaults to `localhost`
+    attr_accessor :hostname
+
+    # Max number of connections to head_node. Defaults to `5`
+    attr_accessor :max_nodes
+
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
       @verbose         = true
@@ -125,6 +137,18 @@ module RSpec::MultiprocessRunner
       end
       if use_given_order
         cmd_parts << '--use-given-order'
+      end
+      if port
+        cmd_parts << '--port' << port.to_s
+      end
+      if node
+        cmd_parts << '--node'
+      end
+      if hostname
+        cmd_parts << '--hostname' << hostname
+      end
+      if max_nodes
+        cmd_parts << '--max-nodes' << max_nodes.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

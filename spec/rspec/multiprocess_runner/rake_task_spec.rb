@@ -116,6 +116,34 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with the port flag" do
+      it "is passed into the comand" do
+        task.port = 8000
+        expect(spec_command).to include_elements_in_order("--port", "8000")
+      end
+    end
+
+    context "with the node flag" do
+      it "is passed into the comand" do
+        task.node = true
+        expect(spec_command).to include_elements_in_order("--node")
+      end
+    end
+
+    context "with the hostname flag" do
+      it "is passed into the comand" do
+        task.hostname = "bob"
+        expect(spec_command).to include_elements_in_order("--hostname", "bob")
+      end
+    end
+
+    context "with the max nodes flag" do
+      it "is passed into the comand" do
+        task.max_nodes = 2
+        expect(spec_command).to include_elements_in_order("--max-nodes", "2")
+      end
+    end
+
     context "with everything" do
       it "has all the arguments in an order that will work" do
         task.pattern = "*.feature"
@@ -125,6 +153,10 @@ module RSpec::MultiprocessRunner
         task.log_failing_files = "afile.txt"
         task.first_is_1 = true
         task.use_given_order = true
+        task.port = 8000
+        task.node = true
+        task.hostname = "bob"
+        task.max_nodes = 2
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -136,6 +168,10 @@ module RSpec::MultiprocessRunner
           "--pattern", "*.feature",
           "--log-failing-files", "afile.txt",
           "--use-given-order",
+          "--port", "8000",
+          "--node",
+          "--hostname", "bob",
+          "--max-nodes", "2",
           "features",
           "--",
           "--backtrace"

@@ -146,6 +146,10 @@ module RSpec::MultiprocessRunner
       act_on_message_from_worker(receive_message_from_worker)
     end
 
+    def to_json(options = nil)
+      { "pid" => @pid, "environment_number" => @environment_number, "current_file" => @current_file, "deactivation_reason" => @deactivation_reason }.to_json
+    end
+
     private
 
     def terminate_then_kill(timeout, message=nil)
@@ -300,16 +304,41 @@ module RSpec::MultiprocessRunner
     end
   end
 
+  class MockWorker
+    attr_reader :pid, :environment_number, :current_file, :deactivation_reason, :node
+
+    def initialize(hash, node)
+      @pid = hash["pid"]
+      @environment_number = hash["environment_number"]
+      @current_file = hash["current_file"]
+      @deactivation_reason = hash["deactivation_reason"]
+      @node = node
+    end
+
+    def self.from_json_parse(hash, node)
+      MockWorker.new(hash, node)
+    end
+  end
+
   # @private
   class ExampleResult
     attr_reader :status, :description, :details, :file_path, :time_finished
 
-    def initialize(example_complete_message)
+    def initialize(example_complete_message, time = Time.now)
+      @hash = example_complete_message
       @status = example_complete_message["example_status"]
       @description = example_complete_message["description"]
       @details = example_complete_message["details"]
       @file_path = example_complete_message["file_path"]
-      @time_finished = Time.now
+      @time_finished = time
+    end
+
+    def to_json(options = nil)
+      { hash: @hash, time: @time_finished.iso8601(9) }.to_json
+    end
+
+    def self.from_json_parse(hash)
+      ExampleResult.new(hash["hash"], Time.iso8601(hash["time"]))
     end
   end
 end

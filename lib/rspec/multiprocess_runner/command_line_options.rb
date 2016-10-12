@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1, :use_given_order
+      :first_is_1, :use_given_order, :port, :head_node, :hostname, :max_nodes
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -20,6 +20,10 @@ module RSpec::MultiprocessRunner
       self.rspec_options = []
       self.first_is_1 = default_first_is_1
       self.use_given_order = false
+      self.port = 2222
+      self.hostname = "localhost"
+      self.head_node = true
+      self.max_nodes = 5
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -117,6 +121,22 @@ module RSpec::MultiprocessRunner
 
         parser.on("-O", "--use-given-order", "Use the order that the files are given as arguments") do
           self.use_given_order = true
+        end
+
+        parser.on("-p", "--port PORT", Integer, "Communicate using port (#{print_default port})") do |port|
+          self.port = port
+        end
+
+        parser.on("-H", "--hostname HOSTNAME", "Hostname of the head node (#{print_default hostname})") do |hostname|
+          self.hostname = hostname
+        end
+
+        parser.on("-n", "--node", "This node is controlled by a head node") do
+          self.head_node = false
+        end
+
+        parser.on("-m", "--max-nodes MAX_NODES", Integer, "Maximum number of nodes (excluding master) permitted (#{print_default max_nodes})") do |max_nodes|
+          self.max_nodes = max_nodes
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

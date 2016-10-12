@@ -1,13 +1,15 @@
 # Rspec::MultiprocessRunner
 
 This gem provides a mechanism for running a suite of RSpec tests in multiple
-processes on the same machine, potentially allowing substantial performance
-improvements.
+processes on the same machine and multiple machines (all reporting back to the
+head node [machine]), potentially allowing substantial performance improvements.
 
-It differs from `parallel_tests` in that it uses a coordinator process to manage
-the workers, hand off work to them, and receive results. This means it can
-dynamically balance the workload among the processors. It also means it can
-provide consolidated results in the console.
+It differs from `parallel_tests` in that it uses a coordinator process on each
+machine to manage the workers, hand off work to them, and receive results. These
+coordinators communicate via simple TCP messages with a head node coordinator to
+remain in sync when running on multiple machines. This means it can dynamically
+balance the workload among the processors and machines. It also means it can
+provide consolidated results in one console.
 
 It follows parallel_tests' environment variable conventions so it's easy to
 use them together. (E.g., parallel_tests has a very nice set of rake tasks
@@ -19,11 +21,14 @@ for setting up parallel environments.)
   time needed to run a suite. Even CPU-bound specs can be aided
 * Provides detailed logging of each example as it completes, including the
   failure message (you don't have to wait until the end to see the failure
-  reason).
+  reason). This is only on the machine running the spec, a final print out does
+  occur on the main machine upon completion, however.
 * Detects, kills, and reports spec files that take longer than expected (five
   minutes by default).
 * Detects and reports spec files that crash (without interrupting the
   remainder of the suite).
+* Head node detects and reruns spec files that are not reported back by the
+  nodes.
 
 ## Limitations
 
@@ -37,6 +42,9 @@ for setting up parallel environments.)
 * Intermediate-quality code. Happy path works, and workers are
   managed/restarted, but:
   * There's no test coverage of the runner itself, only auxiliaries.
+* No security in the TCP messaging, but can work over SSH tunnels. Nodes do
+  verify the file name given against the known files so it will not execute
+  maliciously.
 
 ## Installation
 
@@ -74,6 +82,24 @@ In this case, each RSpec process would receive the options `-b -I ./lib`. Note
 that not that many RSpec options really make sense to pass this way. In
 particular, file selection and output formatting options are unlikely to work
 the way you expect.
+
+Runs as a head node node by default. The following command mimics the defaults:
+
+    $ multirspec -p 2222 -n 5 [Files]
+
+A corresponding node node, for a head node on `head_node.local` would be:
+
+    $ multirspec -H head_node.local -p 2222 -n [Files]
+
+N.B. You must include the same files for the nodes as the head node.
+
+A corresponding set up for a node node using SSH would be:
+
+    $ ssh -nNT -L 2500:localhost:2222 head_node.local &
+    $ multirspec -H localhost -p 2500 -n [Files]
+    $ kill $(jobs -p)
+
+N.B. Ensure that the head node has tcp local port forwarding permitted.
 
 ### Rake
 
