@@ -91,7 +91,7 @@ A corresponding slave node, for a master on `master.local` would be:
 
     $ multirspec -H master.local -p 2222 -s [Files]
 
-N.B. If you must include the same files for the slaves as the master.
+N.B. You must include the same files for the slaves as the master.
 
 A corresponding set up for a slave node using SSH would be:
 
