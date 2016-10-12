@@ -69,7 +69,7 @@ module RSpec::MultiprocessRunner
     attr_accessor :port
 
     # Be a node to a head node at hostname. Defaults to `false`
-    attr_accessor :head_node
+    attr_accessor :node
 
     # Hostname of head node. Defaults to `localhost`
     attr_accessor :hostname
