@@ -81,6 +81,7 @@ module RSpec::MultiprocessRunner
 
     def finished
       if @master
+        @tcp_server_running = false
         @threads.each(&:join)
         @spec_files += missing_files.to_a
       else
@@ -101,10 +102,11 @@ module RSpec::MultiprocessRunner
 
     def run_tcp_server
       server = TCPServer.new @port
+      @tcp_server_running = true
       ObjectSpace.define_finalizer( self, proc { server.close } )
-      while @threads.size < @max_threads
+      while @threads.size < @max_threads && @tcp_server_running
         @threads << Thread.start(server.accept) do |client|
-          server_connection_established(client)
+          server_connection_established(client) if @tcp_server_running
         end
       end
     end
@@ -114,17 +116,17 @@ module RSpec::MultiprocessRunner
         raw_response = socket.gets
         break unless raw_response
         command, results, slave = JSON.parse(raw_response)
-        if command == COMMAND_RESULTS && results = results.map { |result|
-          ExampleResult.from_json_parse(result) }
-          @results += results
-        elsif command == COMMAND_PROCESS && results
-          @failed_workers << MockWorker.from_json_parse(results, slave || "unknown")
+        if command == COMMAND_START
+          socket.puts COMMAND_START
         elsif command == COMMAND_FILE
           socket.puts @spec_files.shift
+        elsif command == COMMAND_PROCESS && results
+          @failed_workers << MockWorker.from_json_parse(results, slave || "unknown")
+        elsif command == COMMAND_RESULTS && results = results.map { |result|
+          ExampleResult.from_json_parse(result) }
+          @results += results
         elsif command == COMMAND_FINISHED
           break
-        elsif command == COMMAND_START
-          socket.puts COMMAND_START
         end
       end
     end
