@@ -2,7 +2,6 @@
 require 'rspec/multiprocess_runner'
 require 'rspec/multiprocess_runner/worker'
 require 'rspec/multiprocess_runner/file_coordinator'
-require 'pry'
 
 module RSpec::MultiprocessRunner
   class Coordinator
