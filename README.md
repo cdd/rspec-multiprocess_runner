@@ -2,7 +2,7 @@
 
 This gem provides a mechanism for running a suite of RSpec tests in multiple
 processes on the same machine and multiple machines (all reporting back to the
-head node), potentially allowing substantial performance improvements.
+head node [machine]), potentially allowing substantial performance improvements.
 
 It differs from `parallel_tests` in that it uses a coordinator process on each
 machine to manage the workers, hand off work to them, and receive results. These
