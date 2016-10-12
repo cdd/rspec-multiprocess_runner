@@ -77,7 +77,7 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --node --hostname bob --port 8000 --num-max-nodes 2) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --node --hostname bob --port 8000 --max-nodes 2) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)

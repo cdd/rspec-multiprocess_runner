@@ -140,7 +140,7 @@ module RSpec::MultiprocessRunner
     context "with the max nodes flag" do
       it "is passed into the comand" do
         task.max_nodes = 2
-        expect(spec_command).to include_elements_in_order("--num-max-nodes", "2")
+        expect(spec_command).to include_elements_in_order("--max-nodes", "2")
       end
     end
 
@@ -171,7 +171,7 @@ module RSpec::MultiprocessRunner
           "--port", "8000",
           "--node",
           "--hostname", "bob",
-          "--num-max-nodes", "2",
+          "--max-nodes", "2",
           "features",
           "--",
           "--backtrace"

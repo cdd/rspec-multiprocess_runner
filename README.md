@@ -89,14 +89,14 @@ Runs as a head node node by default. The following command mimics the defaults:
 
 A corresponding node node, for a head node on `head_node.local` would be:
 
-    $ multirspec -H head_node.local -p 2222 -s [Files]
+    $ multirspec -H head_node.local -p 2222 -n [Files]
 
 N.B. You must include the same files for the nodes as the head node.
 
 A corresponding set up for a node node using SSH would be:
 
     $ ssh -nNT -L 2500:localhost:2222 head_node.local &
-    $ multirspec -H localhost -p 2500 -s [Files]
+    $ multirspec -H localhost -p 2500 -n [Files]
     $ kill $(jobs -p)
 
 N.B. Ensure that the head node has tcp local port forwarding permitted.

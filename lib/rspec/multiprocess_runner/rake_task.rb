@@ -68,10 +68,10 @@ module RSpec::MultiprocessRunner
     # Port to use for TCP communication. Defaults to `2222`.
     attr_accessor :port
 
-    # Be a node to a head_node at hostname. Defaults to `false`
-    attr_accessor :node
+    # Be a node to a head node at hostname. Defaults to `false`
+    attr_accessor :head_node
 
-    # Hostname where server is running. Defaults to `localhost`
+    # Hostname of head node. Defaults to `localhost`
     attr_accessor :hostname
 
     # Max number of connections to head_node. Defaults to `5`
@@ -148,7 +148,7 @@ module RSpec::MultiprocessRunner
         cmd_parts << '--hostname' << hostname
       end
       if max_nodes
-        cmd_parts << '--num-max-nodes' << max_nodes.to_s
+        cmd_parts << '--max-nodes' << max_nodes.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

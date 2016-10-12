@@ -127,15 +127,15 @@ module RSpec::MultiprocessRunner
           self.port = port
         end
 
-        parser.on("-H", "--hostname HOSTNAME", "Hostname of head_node (#{print_default hostname})") do |hostname|
+        parser.on("-H", "--hostname HOSTNAME", "Hostname of the head node (#{print_default hostname})") do |hostname|
           self.hostname = hostname
         end
 
-        parser.on("-s", "--node", "This is a node process") do
+        parser.on("-n", "--node", "This node is controlled by a head node") do
           self.head_node = false
         end
 
-        parser.on("-n", "--num-max-nodes MAX_NODES", Integer, "Maximum number of nodes permitted (#{print_default max_nodes})") do |max_nodes|
+        parser.on("-m", "--max-nodes MAX_NODES", Integer, "Maximum number of nodes (excluding master) permitted (#{print_default max_nodes})") do |max_nodes|
           self.max_nodes = max_nodes
         end
 
