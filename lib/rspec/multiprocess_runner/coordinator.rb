@@ -308,7 +308,7 @@ module RSpec::MultiprocessRunner
       puts
       puts "Failed processes:"
       failed_workers.each do |worker|
-        puts "  - #{worker.slave}:#{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
+        puts "  - #{worker.node}:#{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
       end
     end
 
@@ -316,7 +316,7 @@ module RSpec::MultiprocessRunner
       return if @file_coordinator.missing_files.empty?
       puts
       puts "Missing files from disconnects:"
-      @file_coordinator.missing_files.each { |file| puts "  + #{file} was given to a slave, which disconnected" }
+      @file_coordinator.missing_files.each { |file| puts "  + #{file} was given to a node, which disconnected" }
     end
 
     def print_elapsed_time(seconds_elapsed)

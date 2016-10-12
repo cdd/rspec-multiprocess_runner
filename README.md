@@ -2,11 +2,11 @@
 
 This gem provides a mechanism for running a suite of RSpec tests in multiple
 processes on the same machine and multiple machines (all reporting back to the
-master), potentially allowing substantial performance improvements.
+head node), potentially allowing substantial performance improvements.
 
 It differs from `parallel_tests` in that it uses a coordinator process on each
 machine to manage the workers, hand off work to them, and receive results. These
-coordinators communicate via simple TCP messages with a master coordinator to
+coordinators communicate via simple TCP messages with a head node coordinator to
 remain in sync when running on multiple machines. This means it can dynamically
 balance the workload among the processors and machines. It also means it can
 provide consolidated results in one console.
@@ -27,8 +27,8 @@ for setting up parallel environments.)
   minutes by default).
 * Detects and reports spec files that crash (without interrupting the
   remainder of the suite).
-* Master machine detects and reruns spec files that are not reported back by the
-  slaves.
+* Head node detects and reruns spec files that are not reported back by the
+  nodes.
 
 ## Limitations
 
@@ -42,7 +42,7 @@ for setting up parallel environments.)
 * Intermediate-quality code. Happy path works, and workers are
   managed/restarted, but:
   * There's no test coverage of the runner itself, only auxiliaries.
-* No security in the TCP messaging, but can work over SSH tunnels. Slaves do
+* No security in the TCP messaging, but can work over SSH tunnels. Nodes do
   verify the file name given against the known files so it will not execute
   maliciously.
 
@@ -83,23 +83,23 @@ that not that many RSpec options really make sense to pass this way. In
 particular, file selection and output formatting options are unlikely to work
 the way you expect.
 
-Runs as a master node by default. The following command mimics the defaults:
+Runs as a head node node by default. The following command mimics the defaults:
 
     $ multirspec -p 2222 -n 5 [Files]
 
-A corresponding slave node, for a master on `master.local` would be:
+A corresponding node node, for a head node on `head_node.local` would be:
 
-    $ multirspec -H master.local -p 2222 -s [Files]
+    $ multirspec -H head_node.local -p 2222 -s [Files]
 
-N.B. You must include the same files for the slaves as the master.
+N.B. You must include the same files for the nodes as the head node.
 
-A corresponding set up for a slave node using SSH would be:
+A corresponding set up for a node node using SSH would be:
 
-    $ ssh -nNT -L 2500:localhost:2222 master.local &
+    $ ssh -nNT -L 2500:localhost:2222 head_node.local &
     $ multirspec -H localhost -p 2500 -s [Files]
     $ kill $(jobs -p)
 
-N.B. Ensure that the master has tcp local port forwarding permitted.
+N.B. Ensure that the head node has tcp local port forwarding permitted.
 
 ### Rake
 

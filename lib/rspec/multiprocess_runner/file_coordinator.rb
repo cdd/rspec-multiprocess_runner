@@ -20,21 +20,21 @@ module RSpec::MultiprocessRunner
       @spec_files_reference = files.to_set
       @hostname = options[:hostname]
       @port = options[:port]
-      @max_threads = options[:max_slaves]
-      @master = options[:master]
-      if @master
+      @max_threads = options[:max_nodes]
+      @head_node = options[:head_node]
+      if @head_node
         @spec_files = options[:use_given_order] ? files : sort_files(files)
         Thread.start { run_tcp_server }
-        @slave_socket, master_socket = Socket.pair(:UNIX, :STREAM)
-        Thread.start { server_connection_established(master_socket) }
+        @node_socket, head_node_socket = Socket.pair(:UNIX, :STREAM)
+        Thread.start { server_connection_established(head_node_socket) }
       else
         count = 100
-        while @slave_socket.nil? do
+        while @node_socket.nil? do
           begin
-            @slave_socket = TCPSocket.new @hostname, @port
+            @node_socket = TCPSocket.new @hostname, @port
             raise unless start?
           rescue
-            @slave_socket = nil
+            @node_socket = nil
             raise if count < 0
             count -= 1
             sleep(6)
@@ -42,7 +42,7 @@ module RSpec::MultiprocessRunner
         end
         puts
       end
-      ObjectSpace.define_finalizer( self, proc { @slave_socket.close } )
+      ObjectSpace.define_finalizer( self, proc { @node_socket.close } )
     end
 
     def remaining_files
@@ -50,7 +50,7 @@ module RSpec::MultiprocessRunner
     end
 
     def missing_files
-      if @master
+      if @head_node
         @spec_files_reference - @results.map(&:file_path) - @failed_workers.map(&:current_file)
       else
         []
@@ -59,8 +59,8 @@ module RSpec::MultiprocessRunner
 
     def get_file
       begin
-        @slave_socket.puts [COMMAND_FILE].to_json
-        file = @slave_socket.gets.chomp
+        @node_socket.puts [COMMAND_FILE].to_json
+        file = @node_socket.gets.chomp
         if @spec_files_reference.include? file
           return file
         else
@@ -72,20 +72,20 @@ module RSpec::MultiprocessRunner
     end
 
     def send_results(results)
-      @slave_socket.puts [COMMAND_RESULTS, results].to_json
+      @node_socket.puts [COMMAND_RESULTS, results].to_json
     end
 
     def send_worker_status(worker)
-      @slave_socket.puts [COMMAND_PROCESS, worker, Socket.gethostname].to_json
+      @node_socket.puts [COMMAND_PROCESS, worker, Socket.gethostname].to_json
     end
 
     def finished
-      if @master
+      if @head_node
         @tcp_server_running = false
         @threads.each(&:join)
         @spec_files += missing_files.to_a
       else
-        @slave_socket.puts [COMMAND_FINISHED].to_json
+        @node_socket.puts [COMMAND_FINISHED].to_json
       end
     end
 
@@ -115,13 +115,13 @@ module RSpec::MultiprocessRunner
       loop do
         raw_response = socket.gets
         break unless raw_response
-        command, results, slave = JSON.parse(raw_response)
+        command, results, node = JSON.parse(raw_response)
         if command == COMMAND_START
           socket.puts COMMAND_START
         elsif command == COMMAND_FILE
           socket.puts @spec_files.shift
         elsif command == COMMAND_PROCESS && results
-          @failed_workers << MockWorker.from_json_parse(results, slave || "unknown")
+          @failed_workers << MockWorker.from_json_parse(results, node || "unknown")
         elsif command == COMMAND_RESULTS && results = results.map { |result|
           ExampleResult.from_json_parse(result) }
           @results += results
@@ -137,8 +137,8 @@ module RSpec::MultiprocessRunner
 
     def start?
       begin
-        @slave_socket.puts [COMMAND_START].to_json
-        response = @slave_socket.gets
+        @node_socket.puts [COMMAND_START].to_json
+        response = @node_socket.gets
         response && response.chomp == COMMAND_START
       rescue Errno::EPIPE
         false

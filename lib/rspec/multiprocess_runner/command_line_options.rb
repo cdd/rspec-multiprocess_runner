@@ -7,7 +7,7 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1, :use_given_order, :port, :master, :hostname, :max_slaves
+      :first_is_1, :use_given_order, :port, :head_node, :hostname, :max_nodes
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -22,8 +22,8 @@ module RSpec::MultiprocessRunner
       self.use_given_order = false
       self.port = 2222
       self.hostname = "localhost"
-      self.master = true
-      self.max_slaves = 5
+      self.head_node = true
+      self.max_nodes = 5
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -127,16 +127,16 @@ module RSpec::MultiprocessRunner
           self.port = port
         end
 
-        parser.on("-H", "--hostname HOSTNAME", "Hostname of master (#{print_default hostname})") do |hostname|
+        parser.on("-H", "--hostname HOSTNAME", "Hostname of head_node (#{print_default hostname})") do |hostname|
           self.hostname = hostname
         end
 
-        parser.on("-s", "--slave", "This is a slave process") do
-          self.master = false
+        parser.on("-s", "--node", "This is a node process") do
+          self.head_node = false
         end
 
-        parser.on("-n", "--num-max-slaves MAX_SLAVES", Integer, "Maximum number of slaves permitted (#{print_default max_slaves})") do |max_slaves|
-          self.max_slaves = max_slaves
+        parser.on("-n", "--num-max-nodes MAX_NODES", Integer, "Maximum number of nodes permitted (#{print_default max_nodes})") do |max_nodes|
+          self.max_nodes = max_nodes
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

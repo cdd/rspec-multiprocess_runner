@@ -16,10 +16,10 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
     rspec_options: options.rspec_options,
     log_failing_files: options.log_failing_files,
     use_given_order: options.use_given_order,
-    master: options.master,
+    head_node: options.head_node,
     port: options.port,
     hostname: options.hostname,
-    max_slaves: options.max_slaves
+    max_nodes: options.max_nodes
   }
 )
 

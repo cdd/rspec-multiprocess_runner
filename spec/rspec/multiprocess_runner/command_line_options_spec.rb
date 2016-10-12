@@ -20,8 +20,8 @@ module RSpec::MultiprocessRunner
           expect(parsed.example_timeout_seconds).to eq(15)
         end
 
-        it "has no slave flag" do
-          expect(parsed.master).to be_truthy
+        it "has no node flag" do
+          expect(parsed.head_node).to be_truthy
         end
 
         it "has no hostname flag" do
@@ -32,8 +32,8 @@ module RSpec::MultiprocessRunner
           expect(parsed.port).to eq(2222)
         end
 
-        it "has no num-max-slaves flag" do
-          expect(parsed.max_slaves).to eq(5)
+        it "has no num-max-nodes flag" do
+          expect(parsed.max_nodes).to eq(5)
         end
       end
 
@@ -77,7 +77,7 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --slave --hostname bob --port 8000 --num-max-slaves 2) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --node --hostname bob --port 8000 --num-max-nodes 2) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
@@ -103,8 +103,8 @@ module RSpec::MultiprocessRunner
           expect(parsed.use_given_order).to be_truthy
         end
 
-        it "has the slave flag" do
-          expect(parsed.master).to be_falsey
+        it "has the node flag" do
+          expect(parsed.head_node).to be_falsey
         end
 
         it "has the hostname flag" do
@@ -115,8 +115,8 @@ module RSpec::MultiprocessRunner
           expect(parsed.port).to eq(8000)
         end
 
-        it "has the num-max-slaves flag" do
-          expect(parsed.max_slaves).to eq(2)
+        it "has the num-max-nodes flag" do
+          expect(parsed.max_nodes).to eq(2)
         end
 
         include_examples "no errors"

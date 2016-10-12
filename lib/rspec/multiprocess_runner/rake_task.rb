@@ -68,14 +68,14 @@ module RSpec::MultiprocessRunner
     # Port to use for TCP communication. Defaults to `2222`.
     attr_accessor :port
 
-    # Be a slave to a master at hostname. Defaults to `false`
-    attr_accessor :slave
+    # Be a node to a head_node at hostname. Defaults to `false`
+    attr_accessor :node
 
     # Hostname where server is running. Defaults to `localhost`
     attr_accessor :hostname
 
-    # Max number of connections to master. Defaults to `5`
-    attr_accessor :max_slaves
+    # Max number of connections to head_node. Defaults to `5`
+    attr_accessor :max_nodes
 
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
@@ -141,14 +141,14 @@ module RSpec::MultiprocessRunner
       if port
         cmd_parts << '--port' << port.to_s
       end
-      if slave
-        cmd_parts << '--slave'
+      if node
+        cmd_parts << '--node'
       end
       if hostname
         cmd_parts << '--hostname' << hostname
       end
-      if max_slaves
-        cmd_parts << '--num-max-slaves' << max_slaves.to_s
+      if max_nodes
+        cmd_parts << '--num-max-nodes' << max_nodes.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

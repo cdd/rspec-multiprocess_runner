@@ -305,18 +305,18 @@ module RSpec::MultiprocessRunner
   end
 
   class MockWorker
-    attr_reader :pid, :environment_number, :current_file, :deactivation_reason, :slave
+    attr_reader :pid, :environment_number, :current_file, :deactivation_reason, :node
 
-    def initialize(hash, slave)
+    def initialize(hash, node)
       @pid = hash["pid"]
       @environment_number = hash["environment_number"]
       @current_file = hash["current_file"]
       @deactivation_reason = hash["deactivation_reason"]
-      @slave = slave
+      @node = node
     end
 
-    def self.from_json_parse(hash, slave)
-      MockWorker.new(hash, slave)
+    def self.from_json_parse(hash, node)
+      MockWorker.new(hash, node)
     end
   end
 

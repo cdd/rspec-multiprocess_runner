@@ -123,10 +123,10 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    context "with the slave flag" do
+    context "with the node flag" do
       it "is passed into the comand" do
-        task.slave = true
-        expect(spec_command).to include_elements_in_order("--slave")
+        task.node = true
+        expect(spec_command).to include_elements_in_order("--node")
       end
     end
 
@@ -137,10 +137,10 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    context "with the max slaves flag" do
+    context "with the max nodes flag" do
       it "is passed into the comand" do
-        task.max_slaves = 2
-        expect(spec_command).to include_elements_in_order("--num-max-slaves", "2")
+        task.max_nodes = 2
+        expect(spec_command).to include_elements_in_order("--num-max-nodes", "2")
       end
     end
 
@@ -154,9 +154,9 @@ module RSpec::MultiprocessRunner
         task.first_is_1 = true
         task.use_given_order = true
         task.port = 8000
-        task.slave = true
+        task.node = true
         task.hostname = "bob"
-        task.max_slaves = 2
+        task.max_nodes = 2
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -169,9 +169,9 @@ module RSpec::MultiprocessRunner
           "--log-failing-files", "afile.txt",
           "--use-given-order",
           "--port", "8000",
-          "--slave",
+          "--node",
           "--hostname", "bob",
-          "--num-max-slaves", "2",
+          "--num-max-nodes", "2",
           "features",
           "--",
           "--backtrace"
