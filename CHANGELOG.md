@@ -1,3 +1,5 @@
+# 1.2.2
+
 # 1.2.1
 
 * Fix missing files being triggered by empty files
