@@ -144,6 +144,13 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    context "with the run identifier flag" do
+      it "is passed into the comand" do
+        task.run_identifier = "sdjln3"
+        expect(spec_command).to include_elements_in_order("--run-identifier", "sdjln3")
+      end
+    end
+
     context "with everything" do
       it "has all the arguments in an order that will work" do
         task.pattern = "*.feature"
@@ -157,6 +164,7 @@ module RSpec::MultiprocessRunner
         task.node = true
         task.hostname = "bob"
         task.max_nodes = 2
+        task.run_identifier = "sdjln3"
         task.rspec_opts = "--backtrace"
 
         expect(spec_command).to eq([
@@ -172,6 +180,7 @@ module RSpec::MultiprocessRunner
           "--node",
           "--hostname", "bob",
           "--max-nodes", "2",
+          "--run-identifier", "sdjln3",
           "features",
           "--",
           "--backtrace"

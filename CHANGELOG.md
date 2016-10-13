@@ -1,5 +1,9 @@
 # 1.2.2
 
+* Fix typo in rake task
+
+* Also adds specs that should have been included in last revision
+
 # 1.2.1
 
 * Fix missing files being triggered by empty files

@@ -154,7 +154,7 @@ module RSpec::MultiprocessRunner
         cmd_parts << '--max-nodes' << max_nodes.to_s
       end
       if run_identifier
-        cmd_parts << '--run-identifier' << run-identifier.to_s
+        cmd_parts << '--run-identifier' << run_identifier.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

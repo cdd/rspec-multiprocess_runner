@@ -35,6 +35,10 @@ module RSpec::MultiprocessRunner
         it "has no num-max-nodes flag" do
           expect(parsed.max_nodes).to eq(5)
         end
+
+        it "has no run-identifier flag" do
+          expect(parsed.run_identifier).to be_nil
+        end
       end
 
       shared_examples "no errors" do
@@ -77,7 +81,7 @@ module RSpec::MultiprocessRunner
       end
 
       describe "with options" do
-        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --node --hostname bob --port 8000 --max-nodes 2) }
+        let(:arguments) { %w(-w 12 --file-timeout 1200 --example-timeout 67 --first-is-1 --use-given-order --node --hostname bob --port 8000 --max-nodes 2 --run-identifier sdjln3) }
 
         it "has the process count" do
           expect(parsed.worker_count).to eq(12)
@@ -117,6 +121,10 @@ module RSpec::MultiprocessRunner
 
         it "has the num-max-nodes flag" do
           expect(parsed.max_nodes).to eq(2)
+        end
+
+        it "has the run-identifier flag" do
+          expect(parsed.run_identifier).to eq("sdjln3")
         end
 
         include_examples "no errors"
