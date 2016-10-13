@@ -1,3 +1,5 @@
+# 1.2.1.pre
+
 # 1.2.0
 
 * Can now run tests on multiple machines at a time by running in head node mode
