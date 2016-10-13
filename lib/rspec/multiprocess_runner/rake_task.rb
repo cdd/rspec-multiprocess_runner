@@ -77,6 +77,9 @@ module RSpec::MultiprocessRunner
     # Max number of connections to head_node. Defaults to `5`
     attr_accessor :max_nodes
 
+    #Unique string used by nodes to confirm identity
+    attr_accessor :run_identifier
+
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
       @verbose         = true
@@ -149,6 +152,9 @@ module RSpec::MultiprocessRunner
       end
       if max_nodes
         cmd_parts << '--max-nodes' << max_nodes.to_s
+      end
+      if run_identifier
+        cmd_parts << '--run-identifier' << run-identifier.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

@@ -7,7 +7,8 @@ module RSpec::MultiprocessRunner
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
-      :first_is_1, :use_given_order, :port, :head_node, :hostname, :max_nodes
+      :first_is_1, :use_given_order, :port, :head_node, :hostname, :max_nodes,
+      :run_identifier
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -137,6 +138,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("-m", "--max-nodes MAX_NODES", Integer, "Maximum number of nodes (excluding master) permitted (#{print_default max_nodes})") do |max_nodes|
           self.max_nodes = max_nodes
+        end
+
+        parser.on("-r", "--run-identifier STRING", "A unique string used by nodes to confirm identity (e.g. a git commit hash)") do |string|
+          self.run_identifier = string
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

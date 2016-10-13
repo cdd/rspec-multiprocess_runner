@@ -1,4 +1,10 @@
-# 1.2.1.pre
+# 1.2.1
+
+* Fix missing files being triggered by empty files
+
+* Fix missing files also being skipped files
+
+* Add run identifier option to prevent incorrect spec version execution
 
 # 1.2.0
 

@@ -101,6 +101,12 @@ A corresponding set up for a node node using SSH would be:
 
 N.B. Ensure that the head node has tcp local port forwarding permitted.
 
+A set of nodes and head node can be given a unique string in case multiple spec
+file versions may be tested near simultaneously to prevent execution of the
+wrong version.
+
+    $ multirspec -r a_git_commit_hash
+
 ### Rake
 
 There is a rake task wrapper for `multirspec`:

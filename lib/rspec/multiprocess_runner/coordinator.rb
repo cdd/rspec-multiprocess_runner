@@ -27,7 +27,7 @@ module RSpec::MultiprocessRunner
       run_loop
       quit_all_workers
       @file_coordinator.finished
-      if @file_coordinator.missing_files.any?
+      if @file_coordinator.remaining_files.any?
         run_loop
         quit_all_workers
         @file_coordinator.finished
@@ -222,7 +222,7 @@ module RSpec::MultiprocessRunner
       print_pending_example_details(by_status_and_time["pending"])
       print_failed_example_details(by_status_and_time["failed"])
       print_missing_files
-      log_failed_files(by_status_and_time["failed"].map(&:file_path).uniq  + @file_coordinator.missing_files.to_a) if @log_failing_files
+      log_failed_files(by_status_and_time["failed"].map(&:filename).uniq  + @file_coordinator.missing_files.to_a) if @log_failing_files
       print_failed_process_details
       puts
       print_elapsed_time(elapsed)
@@ -231,7 +231,7 @@ module RSpec::MultiprocessRunner
     end
 
     def combine_example_results
-      @file_coordinator.results.sort_by { |r| r.time_finished }
+      @file_coordinator.results.select { |r| r.run_status == "example_complete" }.sort_by { |r| r.time_finished }
     end
 
     def any_example_failed?

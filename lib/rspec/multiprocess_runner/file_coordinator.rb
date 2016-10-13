@@ -22,6 +22,7 @@ module RSpec::MultiprocessRunner
       @port = options[:port]
       @max_threads = options[:max_nodes]
       @head_node = options[:head_node]
+      @start_string = options[:run_identifier]
       if @head_node
         @spec_files = options[:use_given_order] ? files : sort_files(files)
         Thread.start { run_tcp_server }
@@ -33,7 +34,11 @@ module RSpec::MultiprocessRunner
           begin
             @node_socket = TCPSocket.new @hostname, @port
             raise unless start?
+          rescue BadStartStringError
+            @node_socket.close if @node_socket
+            raise
           rescue
+            @node_socket.close if @node_socket
             @node_socket = nil
             raise if count < 0
             count -= 1
@@ -51,7 +56,7 @@ module RSpec::MultiprocessRunner
 
     def missing_files
       if @head_node
-        @spec_files_reference - @results.map(&:file_path) - @failed_workers.map(&:current_file)
+        @spec_files_reference - @results.map(&:filename) - @failed_workers.map(&:current_file) - @spec_files
       else
         []
       end
@@ -81,9 +86,11 @@ module RSpec::MultiprocessRunner
 
     def finished
       if @head_node
-        @tcp_server_running = false
-        @threads.each(&:join)
-        @spec_files += missing_files.to_a
+        if @tcp_server_running
+         @tcp_server_running = false
+         @threads.each(&:join)
+         @spec_files += missing_files.to_a
+        end
       else
         @node_socket.puts [COMMAND_FINISHED].to_json
       end
@@ -117,13 +124,18 @@ module RSpec::MultiprocessRunner
         break unless raw_response
         command, results, node = JSON.parse(raw_response)
         if command == COMMAND_START
-          socket.puts COMMAND_START
+          if results == @start_string
+            socket.puts COMMAND_START
+          else
+            socket.puts COMMAND_FINISHED
+            break
+          end
         elsif command == COMMAND_FILE
           socket.puts @spec_files.shift
         elsif command == COMMAND_PROCESS && results
           @failed_workers << MockWorker.from_json_parse(results, node || "unknown")
         elsif command == COMMAND_RESULTS && results = results.map { |result|
-          ExampleResult.from_json_parse(result) }
+          Result.from_json_parse(result) }
           @results += results
         elsif command == COMMAND_FINISHED
           break
@@ -131,18 +143,22 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    def work_left_to_do?
-      !@spec_files.empty?
-    end
-
     def start?
       begin
-        @node_socket.puts [COMMAND_START].to_json
+        @node_socket.puts [COMMAND_START, @start_string].to_json
         response = @node_socket.gets
-        response && response.chomp == COMMAND_START
+        response = response.chomp if response
+        raise BadStartStringError if response == COMMAND_FINISHED
+        response == COMMAND_START
       rescue Errno::EPIPE
         false
       end
+    end
+  end
+
+  class BadStartStringError < StandardError
+    def initialize(msg="An incorrect unique string was passed by the head node.")
+      super
     end
   end
 end

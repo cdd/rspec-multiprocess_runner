@@ -175,11 +175,12 @@ module RSpec::MultiprocessRunner
       return :dead unless message_hash # ignore EOF
       case message_hash["status"]
       when STATUS_RUN_COMPLETE
+        example_results << Result.new(message_hash)
         @current_file = nil
         @current_file_started_at = nil
         @current_example_started_at = nil
       when STATUS_EXAMPLE_COMPLETE
-        example_results << ExampleResult.new(message_hash)
+        example_results << Result.new(message_hash)
         suffix =
           case message_hash["example_status"]
           when "failed"
@@ -219,7 +220,7 @@ module RSpec::MultiprocessRunner
         description: description,
         line_number: line_number,
         details: details,
-        file_path: @current_file
+        filename: @current_file
       )
     end
 
@@ -321,15 +322,16 @@ module RSpec::MultiprocessRunner
   end
 
   # @private
-  class ExampleResult
-    attr_reader :status, :description, :details, :file_path, :time_finished
+  class Result
+    attr_reader :run_status, :status, :description, :details, :filename, :time_finished
 
-    def initialize(example_complete_message, time = Time.now)
-      @hash = example_complete_message
-      @status = example_complete_message["example_status"]
-      @description = example_complete_message["description"]
-      @details = example_complete_message["details"]
-      @file_path = example_complete_message["file_path"]
+    def initialize(complete_message, time = Time.now)
+      @hash = complete_message
+      @run_status = complete_message["status"]
+      @status = complete_message["example_status"]
+      @description = complete_message["description"]
+      @details = complete_message["details"]
+      @filename = complete_message["filename"]
       @time_finished = time
     end
 
@@ -338,7 +340,7 @@ module RSpec::MultiprocessRunner
     end
 
     def self.from_json_parse(hash)
-      ExampleResult.new(hash["hash"], Time.iso8601(hash["time"]))
+      Result.new(hash["hash"], Time.iso8601(hash["time"]))
     end
   end
 end
