@@ -78,7 +78,7 @@ module RSpec::MultiprocessRunner
     attr_accessor :max_nodes
 
     #Unique string used by nodes to confirm identity
-    attr_accessor :unique_string
+    attr_accessor :run_identifier
 
     def initialize(*args, &task_block)
       @name            = args.shift || :multispec
@@ -153,8 +153,8 @@ module RSpec::MultiprocessRunner
       if max_nodes
         cmd_parts << '--max-nodes' << max_nodes.to_s
       end
-      if unique_string
-        cmd_parts << '--unique-string' << unique-string.to_s
+      if run_identifier
+        cmd_parts << '--run-identifier' << run-identifier.to_s
       end
       if files_or_directories
         cmd_parts.concat(files_or_directories)

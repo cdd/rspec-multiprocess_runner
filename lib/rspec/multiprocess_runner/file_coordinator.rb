@@ -22,7 +22,7 @@ module RSpec::MultiprocessRunner
       @port = options[:port]
       @max_threads = options[:max_nodes]
       @head_node = options[:head_node]
-      @start_string = options[:unique_string]
+      @start_string = options[:run_identifier]
       if @head_node
         @spec_files = options[:use_given_order] ? files : sort_files(files)
         Thread.start { run_tcp_server }

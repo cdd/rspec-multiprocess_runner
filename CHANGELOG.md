@@ -4,7 +4,7 @@
 
 * Fix missing files also being skipped files
 
-* Add unique string option to prevent incorrect spec version execution
+* Add run identifier option to prevent incorrect spec version execution
 
 # 1.2.0
 

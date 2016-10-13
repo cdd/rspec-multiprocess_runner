@@ -105,7 +105,7 @@ A set of nodes and head node can be given a unique string in case multiple spec
 file versions may be tested near simultaneously to prevent execution of the
 wrong version.
 
-    $ multirspec -u SomeUniqueString
+    $ multirspec -r a_git_commit_hash
 
 ### Rake
 

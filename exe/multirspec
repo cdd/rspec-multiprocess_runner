@@ -20,7 +20,7 @@ coordinator = RSpec::MultiprocessRunner::Coordinator.new(
     port: options.port,
     hostname: options.hostname,
     max_nodes: options.max_nodes,
-    unique_string: options.unique_string
+    run_identifier: options.run_identifier
   }
 )
 
