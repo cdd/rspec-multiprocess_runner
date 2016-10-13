@@ -1,4 +1,15 @@
-# 1.1.1
+# 1.2.0
+
+* Can now run tests on multiple machines at a time by running in head node mode
+  and others in node mode.  Nodes get which files to run when from the head node
+  in a manner similar to how workers got files from the coordinator (which
+  currently also still happens).
+
+* Uses unencoded TCP, but works with SSH tunnels
+
+* Adds associated command line and rake task options
+
+* Reruns once locally if any files are missing from disconnects
 
 # 1.1.0
 
