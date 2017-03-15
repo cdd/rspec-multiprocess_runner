@@ -8,6 +8,7 @@ require "rspec/core/runner"
 require "socket"
 require "json"
 require "timeout"
+require "time"
 
 module RSpec::MultiprocessRunner
   ##
