@@ -1,5 +1,7 @@
 # 1.2.3
 
+* Fix time library sporadic failure
+
 # 1.2.2
 
 * Fix typo in rake task
