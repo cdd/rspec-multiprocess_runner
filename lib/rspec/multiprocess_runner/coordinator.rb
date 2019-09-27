@@ -5,13 +5,10 @@ require 'rspec/multiprocess_runner/file_coordinator'
 
 module RSpec::MultiprocessRunner
   class Coordinator
-    def initialize(worker_count, files, options={})
-      @worker_count = worker_count
-      @file_timeout_seconds = options[:file_timeout_seconds]
-      @example_timeout_seconds = options[:example_timeout_seconds]
-      @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
-      @log_failing_files = options[:log_failing_files]
-      @rspec_options = options[:rspec_options]
+    attr_accessor :options
+
+    def initialize(worker_count, files, options)
+      self.options = options
       @file_buffer = []
       @workers = []
       @stopped_workers = []
@@ -55,10 +52,10 @@ module RSpec::MultiprocessRunner
         end_workers_in_parallel(@workers.dup, :kill_now)
       else
         @shutting_down = true
-        print "Shutting down #{pluralize(@workers.size, "worker")} …" if options[:print_summary]
+        print "Shutting down #{pluralize(@workers.size, "worker")} …" if options.print_summary
         # end_workers_in_parallel modifies @workers, so dup before sending in
         end_workers_in_parallel(@workers.dup, :shutdown_now)
-        if options[:print_summary]
+        if options.print_summary
           puts " done"
           print_summary
         end
@@ -175,19 +172,13 @@ module RSpec::MultiprocessRunner
     end
 
     def expected_worker_numbers
-      (1..@worker_count).to_a
+      (1..options.worker_count).to_a
     end
 
     def create_and_start_worker_if_necessary(n)
       if work_left_to_do?
         $stderr.puts "(Re)starting worker #{n}"
-        new_worker = Worker.new(
-          n,
-          file_timeout_seconds: @file_timeout_seconds,
-          example_timeout_seconds: @example_timeout_seconds,
-          rspec_options: @rspec_options,
-          test_env_number_first_is_1: @test_env_number_first_is_1
-        )
+        new_worker = Worker.new(n, options)
         @workers << new_worker
         new_worker.start
         file = get_file
@@ -196,7 +187,7 @@ module RSpec::MultiprocessRunner
     end
 
     def start_missing_workers
-      if @workers.size < @worker_count && work_left_to_do?
+      if @workers.size < options.worker_count && work_left_to_do?
         running_process_numbers = @workers.map(&:environment_number)
         missing_process_numbers = expected_worker_numbers - running_process_numbers
         missing_process_numbers.each do |n|
@@ -218,16 +209,20 @@ module RSpec::MultiprocessRunner
         idx[result.status] << result
       end
 
-      print_skipped_files_details
-      print_pending_example_details(by_status_and_time["pending"])
-      print_failed_example_details(by_status_and_time["failed"])
-      print_missing_files
-      log_failed_files(by_status_and_time["failed"].map(&:filename).uniq  + @file_coordinator.missing_files.to_a) if @log_failing_files
-      print_failed_process_details
-      puts
-      print_elapsed_time(elapsed)
-      puts failed? ? "FAILURE" : "SUCCESS"
-      print_example_counts(by_status_and_time)
+      outputs = [STDOUT]
+      outputs << File.new(options.summary_filename, 'w') if (options.summary_filename)
+      outputs.each do |output|
+        print_skipped_files_details(output)
+        print_pending_example_details(output, by_status_and_time["pending"])
+        print_failed_example_details(output, by_status_and_time["failed"])
+        print_missing_files(output)
+        log_failed_files(by_status_and_time["failed"].map(&:filename).uniq  + @file_coordinator.missing_files.to_a) if options.log_failing_files
+        print_failed_process_details(output)
+        output.puts
+        print_elapsed_time(output, elapsed)
+        output.puts failed? ? "FAILURE" : "SUCCESS"
+        print_example_counts(output, by_status_and_time)
+      end
     end
 
     def combine_example_results
@@ -238,41 +233,41 @@ module RSpec::MultiprocessRunner
       @file_coordinator.results.detect { |r| r.status == "failed" }
     end
 
-    def print_skipped_files_details
+    def print_skipped_files_details(output)
       return if !work_left_to_do?
-      puts
-      puts "Skipped files:"
+      output.puts
+      output.puts "Skipped files:"
       @file_coordinator.remaining_files.each do |spec_file|
-        puts "  - #{spec_file}"
+        output.puts "  - #{spec_file}"
       end
     end
 
-    def print_pending_example_details(pending_example_results)
+    def print_pending_example_details(output, pending_example_results)
       return if pending_example_results.nil?
-      puts
-      puts "Pending:"
+      output.puts
+      output.puts "Pending:"
       pending_example_results.each do |pending|
-        puts
-        puts pending.details.sub(/^\s*Pending:\s*/, '')
+        output.puts
+        output.puts pending.details.sub(/^\s*Pending:\s*/, '')
       end
     end
 
-    def print_failed_example_details(failed_example_results)
+    def print_failed_example_details(output, failed_example_results)
       return if failed_example_results.nil?
-      puts
-      puts "Failures:"
+      output.puts
+      output.puts "Failures:"
       failed_example_results.each_with_index do |failure, i|
-        puts
-        puts "  #{i.next}) #{failure.description}"
-        puts failure.details
+        output.puts
+        output.puts "  #{i.next}) #{failure.description}"
+        output.puts failure.details
       end
     end
 
     def log_failed_files(failed_files)
       return if failed_files.nil?
-      puts
-      puts "Writing failures to file: #{@log_failing_files}"
-      File.open(@log_failing_files, "w+") do |io|
+      output.puts
+      output.puts "Writing failures to file: #{options.log_failing_files}"
+      File.open(options.log_failing_files, "w+") do |io|
         failed_files.each do |file|
           io << file
           io << "\n"
@@ -285,7 +280,7 @@ module RSpec::MultiprocessRunner
       "#{count} #{string}#{'s' unless count.to_f == 1}"
     end
 
-    def print_example_counts(by_status_and_time)
+    def print_example_counts(output, by_status_and_time)
       example_count = by_status_and_time.map { |status, results| results.size }.inject(0) { |sum, ct| sum + ct }
       failure_count = by_status_and_time["failed"] ? by_status_and_time["failed"].size : 0
       pending_count = by_status_and_time["pending"] ? by_status_and_time["pending"].size : 0
@@ -300,26 +295,26 @@ module RSpec::MultiprocessRunner
       summary << ", " << pluralize(process_failure_count, "failed proc") if process_failure_count > 0
       summary << ", " << pluralize(skipped_count, "skipped file") if skipped_count > 0
       summary << ", " << pluralize(missing_count, "missing file") if missing_count > 0
-      puts summary
+      output.puts summary
     end
 
-    def print_failed_process_details
+    def print_failed_process_details(output)
       return if failed_workers.empty?
-      puts
-      puts "Failed processes:"
+      output.puts
+      output.puts "Failed processes:"
       failed_workers.each do |worker|
-        puts "  - #{worker.node}:#{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
+        output.puts "  - #{worker.node}:#{worker.pid} (env #{worker.environment_number}) #{worker.deactivation_reason} on #{worker.current_file}"
       end
     end
 
-    def print_missing_files
+    def print_missing_files(output)
       return if @file_coordinator.missing_files.empty?
-      puts
-      puts "Missing files from disconnects:"
-      @file_coordinator.missing_files.each { |file| puts "  + #{file} was given to a node, which disconnected" }
+      output.puts
+      output.puts "Missing files from disconnects:"
+      @file_coordinator.missing_files.each { |file| output.puts "  + #{file} was given to a node, which disconnected" }
     end
 
-    def print_elapsed_time(seconds_elapsed)
+    def print_elapsed_time(output, seconds_elapsed)
       minutes = seconds_elapsed.to_i / 60
       seconds = seconds_elapsed % 60
       m =
@@ -330,7 +325,7 @@ module RSpec::MultiprocessRunner
         if seconds > 0
           "%.2f second%s" % [seconds, seconds == 1 ? '' : 's']
         end
-      puts "Finished in #{[m, s].compact.join(", ")}"
+      output.puts "Finished in #{[m, s].compact.join(", ")}"
     end
   end
 end

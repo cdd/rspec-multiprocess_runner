@@ -13,14 +13,14 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/cdd/rspec-multiprocess_runner"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features|manual_test_specs)/}) }
+  spec.files         = Dir.glob('{bin,lib,exe}/**/*') + %w[ruby_language_server.gemspec Gemfile Gemfile.lock Rakefile CHANGELOG.md LICENSE.txt README.md TODO.md]
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rspec", ">= 2.99"
 
-  spec.add_development_dependency "bundler", "~> 1.10"
+  spec.add_development_dependency "bundler", ">= 1.10"
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "stub_env"

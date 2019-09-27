@@ -22,7 +22,7 @@ module RSpec::MultiprocessRunner
   # @private
   class Worker
     attr_reader :pid, :environment_number, :example_results, :current_file
-    attr_accessor :deactivation_reason
+    attr_accessor :deactivation_reason, :options
 
     COMMAND_QUIT = "quit"
     COMMAND_RUN_FILE = "run_file"
@@ -33,10 +33,8 @@ module RSpec::MultiprocessRunner
     def initialize(environment_number, options)
       @environment_number = environment_number
       @worker_socket, @coordinator_socket = Socket.pair(:UNIX, :STREAM)
-      @rspec_arguments = (options[:rspec_options] || []) + ["--format", ReportingFormatter.to_s]
-      @example_timeout_seconds = options[:example_timeout_seconds]
-      @file_timeout_seconds = options[:file_timeout_seconds]
-      @test_env_number_first_is_1 = options[:test_env_number_first_is_1]
+      @rspec_arguments = (options.rspec_options || []) + ["--format", ReportingFormatter.to_s]
+      self.options = options
       @example_results = []
     end
 
@@ -52,7 +50,7 @@ module RSpec::MultiprocessRunner
     end
 
     def test_env_number
-      if environment_number == 1 && !@test_env_number_first_is_1
+      if environment_number == 1 && !options.first_is_1
         ""
       else
         environment_number.to_s
@@ -120,12 +118,12 @@ module RSpec::MultiprocessRunner
 
     def stalled?
       file_stalled =
-        if @file_timeout_seconds
-          working? && (Time.now - @current_file_started_at > @file_timeout_seconds)
+        if options.file_timeout_seconds
+          working? && (Time.now - @current_file_started_at > options.file_timeout_seconds)
         end
       example_stalled =
-        if @example_timeout_seconds
-          working? && (Time.now - @current_example_started_at > @example_timeout_seconds)
+        if options.example_timeout_seconds
+          working? && (Time.now - @current_example_started_at > options.example_timeout_seconds)
         end
       file_stalled || example_stalled
     end

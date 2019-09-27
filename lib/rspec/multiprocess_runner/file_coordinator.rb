@@ -1,10 +1,12 @@
 # encoding: utf-8
 require 'rspec/multiprocess_runner'
 require 'socket'
+require 'set'
 
 module RSpec::MultiprocessRunner
   class FileCoordinator
     attr_reader :results, :failed_workers
+    attr_accessor :options
 
     COMMAND_FILE = "file"
     COMMAND_RESULTS = "results"
@@ -17,14 +19,10 @@ module RSpec::MultiprocessRunner
       @results = Set.new
       @threads = []
       @failed_workers = []
+      self.options = options
       @spec_files_reference = files.to_set
-      @hostname = options[:hostname]
-      @port = options[:port]
-      @max_threads = options[:max_nodes]
-      @head_node = options[:head_node]
-      @start_string = options[:run_identifier]
-      if @head_node
-        @spec_files = options[:use_given_order] ? files : sort_files(files)
+      if options.head_node
+        @spec_files = options.use_given_order ? files : sort_files(files)
         Thread.start { run_tcp_server }
         @node_socket, head_node_socket = Socket.pair(:UNIX, :STREAM)
         Thread.start { server_connection_established(head_node_socket) }
@@ -32,7 +30,7 @@ module RSpec::MultiprocessRunner
         count = 100
         while @node_socket.nil? do
           begin
-            @node_socket = TCPSocket.new @hostname, @port
+            @node_socket = TCPSocket.new options.hostname, options.port
             raise unless start?
           rescue BadStartStringError
             @node_socket.close if @node_socket
@@ -55,7 +53,7 @@ module RSpec::MultiprocessRunner
     end
 
     def missing_files
-      if @head_node
+      if options.head_node
         @spec_files_reference - @results.map(&:filename) - @failed_workers.map(&:current_file) - @spec_files
       else
         []
@@ -85,7 +83,7 @@ module RSpec::MultiprocessRunner
     end
 
     def finished
-      if @head_node
+      if options.head_node
         if @tcp_server_running
          @tcp_server_running = false
          @threads.each(&:join)
@@ -108,10 +106,10 @@ module RSpec::MultiprocessRunner
     end
 
     def run_tcp_server
-      server = TCPServer.new @port
+      server = TCPServer.new options.port
       @tcp_server_running = true
       ObjectSpace.define_finalizer( self, proc { server.close } )
-      while @threads.size < @max_threads && @tcp_server_running
+      while @threads.size < options.max_nodes && @tcp_server_running
         @threads << Thread.start(server.accept) do |client|
           server_connection_established(client) if @tcp_server_running
         end
@@ -124,7 +122,7 @@ module RSpec::MultiprocessRunner
         break unless raw_response
         command, results, node = JSON.parse(raw_response)
         if command == COMMAND_START
-          if results == @start_string
+          if results == options.start_string
             socket.puts COMMAND_START
           else
             socket.puts COMMAND_FINISHED
@@ -145,7 +143,7 @@ module RSpec::MultiprocessRunner
 
     def start?
       begin
-        @node_socket.puts [COMMAND_START, @start_string].to_json
+        @node_socket.puts [COMMAND_START, options.start_string].to_json
         response = @node_socket.gets
         response = response.chomp if response
         raise BadStartStringError if response == COMMAND_FINISHED
