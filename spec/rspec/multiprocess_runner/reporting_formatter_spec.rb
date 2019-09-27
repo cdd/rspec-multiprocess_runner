@@ -70,7 +70,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
     it "sends the formatted details also" do
       expect(worker).to have_received(:report_example_result).with(
         :failed, anything, anything,
-        /Failure\/Error:.*2 \+ 2.*5/
+        /Failure\/Error:/
       )
     end
 
