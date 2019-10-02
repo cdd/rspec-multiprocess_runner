@@ -24,7 +24,7 @@ module RSpec::MultiprocessRunner
       self.hostname = "localhost"
       self.head_node = true
       self.max_nodes = 5
-      self.summary_filename = nil
+      self.summary_filename = ENV['SUMMARY_FILE']
     end
 
     def parse(command_line_args, error_stream=$stderr)
