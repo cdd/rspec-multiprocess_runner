@@ -3,12 +3,11 @@ require 'optparse'
 require 'pathname'
 
 module RSpec::MultiprocessRunner
-  # @private
   class CommandLineOptions
     attr_accessor :worker_count, :file_timeout_seconds, :example_timeout_seconds,
       :rspec_options, :explicit_files_or_directories, :pattern, :log_failing_files,
       :first_is_1, :use_given_order, :port, :head_node, :hostname, :max_nodes,
-      :run_identifier
+      :run_identifier, :summary_filename
 
     DEFAULT_WORKER_COUNT = 3
 
@@ -25,6 +24,7 @@ module RSpec::MultiprocessRunner
       self.hostname = "localhost"
       self.head_node = true
       self.max_nodes = 5
+      self.summary_filename = nil
     end
 
     def parse(command_line_args, error_stream=$stderr)
@@ -142,6 +142,10 @@ module RSpec::MultiprocessRunner
 
         parser.on("-r", "--run-identifier STRING", "A unique string used by nodes to confirm identity (e.g. a git commit hash)") do |string|
           self.run_identifier = string
+        end
+
+        parser.on("-f", "--summary-filename STRING", "Save summary to a file") do |string|
+          self.summary_filename = string
         end
 
         parser.on_tail("-h", "--help", "Prints this help") do

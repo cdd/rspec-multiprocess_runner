@@ -412,7 +412,8 @@ module RSpec::MultiprocessRunner
         let(:arguments) { %w(--pattern **/?t_*spec.rb features) }
 
         it 'includes only files that match the pattern in the directory' do
-          expect(actual_files).to eq(%w(
+
+          expect(actual_files.sort).to eq(%w(
             features/at_spec.rb
             features/bt_spec.rb
             features/ct_spec.rb

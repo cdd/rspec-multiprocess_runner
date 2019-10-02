@@ -11,3 +11,5 @@
 /manual_test_specs/*
 !/manual_test_specs/.keep
 /vendor
+results.txt
+.byebug_history

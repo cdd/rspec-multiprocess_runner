@@ -9,19 +9,7 @@ exit(64) unless options
 coordinator = RSpec::MultiprocessRunner::Coordinator.new(
   options.worker_count,
   options.files_to_run,
-  {
-    file_timeout_seconds: options.file_timeout_seconds,
-    example_timeout_seconds: options.example_timeout_seconds,
-    test_env_number_first_is_1: options.first_is_1,
-    rspec_options: options.rspec_options,
-    log_failing_files: options.log_failing_files,
-    use_given_order: options.use_given_order,
-    head_node: options.head_node,
-    port: options.port,
-    hostname: options.hostname,
-    max_nodes: options.max_nodes,
-    run_identifier: options.run_identifier
-  }
+  options
 )
 
 trap("INT") do
