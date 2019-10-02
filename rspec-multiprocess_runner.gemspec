@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/cdd/rspec-multiprocess_runner"
   spec.license       = "MIT"
 
-  spec.files         = Dir.glob('{bin,lib,exe}/**/*') + %w[ruby_language_server.gemspec Gemfile Gemfile.lock Rakefile CHANGELOG.md LICENSE.txt README.md TODO.md]
+  spec.files         = Dir.glob('{bin,lib,exe}/**/*') + %w[rspec-multiprocess_runner.gemspec Gemfile Gemfile.lock Rakefile CHANGELOG.md LICENSE.txt README.md TODO.md]
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
