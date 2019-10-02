@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "rspec-multiprocess_runner"
   spec.version       = RSpec::MultiprocessRunner::VERSION
   spec.authors       = ["Rhett Sutphin", 'Jacob Bloom', 'Peter Nyberg', 'Kurt Werle']
-  spec.email         = ["kwerle@collaborativedrug.com"]
+  spec.email         = ["rspec-multiprocess_runner@collaborativedrug.com"]
 
   spec.summary       = %q{A runner for RSpec 3 that uses multiple processes to execute specs in parallel}
   spec.homepage      = "https://github.com/cdd/rspec-multiprocess_runner"
