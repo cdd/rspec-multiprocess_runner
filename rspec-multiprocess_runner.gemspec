@@ -6,8 +6,8 @@ require 'rspec/multiprocess_runner/version'
 Gem::Specification.new do |spec|
   spec.name          = "rspec-multiprocess_runner"
   spec.version       = RSpec::MultiprocessRunner::VERSION
-  spec.authors       = ["Rhett Sutphin"]
-  spec.email         = ["rhett@detailedbalance.net"]
+  spec.authors       = ["Rhett Sutphin", 'Jacob Bloom', 'Peter Nyberg', 'Kurt Werle']
+  spec.email         = ["kwerle@collaborativedrug.com"]
 
   spec.summary       = %q{A runner for RSpec 3 that uses multiple processes to execute specs in parallel}
   spec.homepage      = "https://github.com/cdd/rspec-multiprocess_runner"
@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rspec", ">= 2.99"
+  spec.add_dependency "rspec", ">= 3.0"
 
   spec.add_development_dependency "bundler", ">= 1.10"
   spec.add_development_dependency "pry-byebug"

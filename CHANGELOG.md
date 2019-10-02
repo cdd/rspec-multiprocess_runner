@@ -1,3 +1,7 @@
+# 1.3.0
+
+* Add file output option
+
 # 1.2.4
 
 # 1.2.3
