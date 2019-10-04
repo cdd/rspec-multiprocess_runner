@@ -204,7 +204,7 @@ module RSpec::MultiprocessRunner
     end
 
     def summary_file
-      File.new(options.summary_filename, 'w') if (options.summary_filename)      
+      File.new(options.summary_filename, 'w') if (options.summary_filename)
     end
 
     def print_summary
@@ -213,7 +213,7 @@ module RSpec::MultiprocessRunner
         idx[result.status] << result
       end
 
-      outputs = [STDOUT, summary_file].compact
+      outputs = [$stdout, summary_file].compact
       outputs.each do |output|
         print_skipped_files_details(output)
         print_pending_example_details(output, by_status_and_time["pending"])
@@ -225,7 +225,7 @@ module RSpec::MultiprocessRunner
         print_elapsed_time(output, elapsed)
         output.puts failed? ? "FAILURE" : "SUCCESS"
         print_example_counts(output, by_status_and_time)
-        output.close unless output == STDOUT
+        output.close unless output == $stdout
       end
     end
 

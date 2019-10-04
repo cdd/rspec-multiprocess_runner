@@ -2,6 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rspec/multiprocess_runner'
 require 'rspec/core/sandbox'
 require 'stub_env'
+require 'byebug'
 
 Dir['./spec/support/**/*.rb'].map {|f| require f}
 

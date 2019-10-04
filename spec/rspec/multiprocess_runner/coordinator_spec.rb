@@ -1,5 +1,4 @@
 # encoding: utf-8
-require 'byebug'
 require_relative '../../spec_helper'
 require 'rspec/multiprocess_runner/coordinator'
 
@@ -24,6 +23,10 @@ describe RSpec::MultiprocessRunner::Coordinator do
 
     it "should work" do
       expect(coordinator.run).to eq(0)
+    end
+
+    it "should generate output to STDOUT" do
+      expect{ coordinator.run }.to output(/0 examples/).to_stdout
     end
 
     it "should work with a summary file" do
