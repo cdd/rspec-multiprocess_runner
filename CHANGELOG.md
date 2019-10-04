@@ -1,4 +1,6 @@
-# 1.3.2
+# 1.3.3
+
+* File output bug fix
 
 # 1.3.1
 
