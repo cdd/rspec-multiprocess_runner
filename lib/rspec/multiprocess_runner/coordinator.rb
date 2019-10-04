@@ -203,25 +203,29 @@ module RSpec::MultiprocessRunner
       end
     end
 
+    def summary_file
+      File.new(options.summary_filename, 'w') if (options.summary_filename)      
+    end
+
     def print_summary
       elapsed = Time.now - @start_time
       by_status_and_time = combine_example_results.each_with_object(Hash.new { |h, k| h[k] = [] }) do |result, idx|
         idx[result.status] << result
       end
 
-      outputs = [STDOUT]
-      outputs << File.new(options.summary_filename, 'w') if (options.summary_filename)
+      outputs = [STDOUT, summary_file].compact
       outputs.each do |output|
         print_skipped_files_details(output)
         print_pending_example_details(output, by_status_and_time["pending"])
         print_failed_example_details(output, by_status_and_time["failed"])
         print_missing_files(output)
-        log_failed_files(by_status_and_time["failed"].map(&:filename).uniq  + @file_coordinator.missing_files.to_a) if options.log_failing_files
+        log_failed_files(output, by_status_and_time["failed"].map(&:filename).uniq  + @file_coordinator.missing_files.to_a) if options.log_failing_files
         print_failed_process_details(output)
         output.puts
         print_elapsed_time(output, elapsed)
         output.puts failed? ? "FAILURE" : "SUCCESS"
         print_example_counts(output, by_status_and_time)
+        output.close unless output == STDOUT
       end
     end
 
@@ -263,7 +267,7 @@ module RSpec::MultiprocessRunner
       end
     end
 
-    def log_failed_files(failed_files)
+    def log_failed_files(output, failed_files)
       return if failed_files.nil?
       output.puts
       output.puts "Writing failures to file: #{options.log_failing_files}"
