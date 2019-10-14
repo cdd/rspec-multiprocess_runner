@@ -1,3 +1,5 @@
+# 1.4.1
+
 # 1.4.0
 
 * Fix issue catching spec files failing outside of tests (it will now die loudly instead of passing silently).
