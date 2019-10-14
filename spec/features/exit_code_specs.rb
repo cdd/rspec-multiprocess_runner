@@ -26,6 +26,18 @@ describe 'Exit code' do
     it { is_expected.to eq(1) }
   end
 
+  context 'on broken followed by success' do
+    let(:files) { 'spec/files/valid_but_broken.rb', 'spec/files/successful.rb' }
+
+    it { is_expected.to eq(1) }
+  end
+
+  context 'on success followed by broken' do
+    let(:files) { 'spec/files/successful.rb', 'spec/files/valid_but_broken.rb' }
+
+    it { is_expected.to eq(1) }
+  end
+
   context 'on process failures' do
     let(:files) { 'spec/files/syntax_error.rb' }
 
