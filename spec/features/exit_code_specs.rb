@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'timeout'
 
 describe 'Exit code' do
   let(:executable) { 'ruby -Ilib exe/multirspec' }
@@ -27,15 +28,15 @@ describe 'Exit code' do
   end
 
   context 'on broken followed by success' do
-    let(:files) { 'spec/files/valid_but_broken.rb', 'spec/files/successful.rb' }
+    let(:files) { 'spec/files/valid_but_broken.rb spec/files/successful.rb' }
 
-    it { is_expected.to eq(1) }
+    it { is_expected.to eq(2) }
   end
 
   context 'on success followed by broken' do
-    let(:files) { 'spec/files/successful.rb', 'spec/files/valid_but_broken.rb' }
+    let(:files) { 'spec/files/successful.rb spec/files/valid_but_broken.rb' }
 
-    it { is_expected.to eq(1) }
+    it { is_expected.to eq(2) }
   end
 
   context 'on process failures' do
