@@ -263,9 +263,9 @@ module RSpec::MultiprocessRunner
     def act_on_message_from_coordinator(message_hash)
       return handle_closed_coordinator_socket unless message_hash # EOF
       case message_hash["command"]
-      when "quit"
+      when COMMAND_QUIT
         exit
-      when "run_file"
+      when COMMAND_RUN_FILE
         execute_spec(message_hash["filename"])
       else
         $stderr.puts "Received unsupported command #{message_hash["command"].inspect} in worker #{pid}"
@@ -282,6 +282,7 @@ module RSpec::MultiprocessRunner
 
       ReportingFormatter.worker = self
       RSpec::Core::Runner.run(@rspec_arguments + [spec_file])
+      raise "Error outside of tests on #{spec_file}" if RSpec.world.non_example_failure
       send_message_to_coordinator(status: STATUS_RUN_COMPLETE, filename: spec_file)
     ensure
       @current_file = nil

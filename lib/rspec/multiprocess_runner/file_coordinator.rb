@@ -69,7 +69,8 @@ module RSpec::MultiprocessRunner
         else
           return nil # Malformed response, assume done, cease function
         end
-      rescue
+      rescue Exception => e
+        puts("Got exception #{e} in get_file")
         return nil # If Error, assume done, cease function
       end
     end
