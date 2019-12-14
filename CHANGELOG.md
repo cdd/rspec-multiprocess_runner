@@ -1,3 +1,5 @@
+# 1.4.2
+
 # 1.4.1
 
 * Fix file coordinator helpers failing due to unknown method on command line args
