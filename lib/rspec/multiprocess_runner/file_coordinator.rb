@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'rspec/multiprocess_runner'
 require 'socket'
+require 'json'
 require 'set'
 
 module RSpec::MultiprocessRunner
@@ -14,7 +15,7 @@ module RSpec::MultiprocessRunner
     COMMAND_FINISHED = "finished"
     COMMAND_START = "start"
 
-    def initialize(files, options={})
+    def initialize(files, options=RSpec::MultiprocessRunner::CommandLineOptions.new)
       @spec_files = []
       @results = Set.new
       @threads = []
@@ -123,7 +124,7 @@ module RSpec::MultiprocessRunner
         break unless raw_response
         command, results, node = JSON.parse(raw_response)
         if command == COMMAND_START
-          if results == options.start_string
+          if results == options.run_identifier
             socket.puts COMMAND_START
           else
             socket.puts COMMAND_FINISHED
@@ -144,7 +145,7 @@ module RSpec::MultiprocessRunner
 
     def start?
       begin
-        @node_socket.puts [COMMAND_START, options.start_string].to_json
+        @node_socket.puts [COMMAND_START, options.run_identifier].to_json
         response = @node_socket.gets
         response = response.chomp if response
         raise BadStartStringError if response == COMMAND_FINISHED
