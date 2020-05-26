@@ -12,8 +12,17 @@ describe RSpec::MultiprocessRunner::Coordinator do
 
     around(:each) do |example|
       File.delete(log_failing_files) if File.exist?(log_failing_files)
-      example.run
-      File.delete(log_failing_files) if File.exist?(log_failing_files)
+      original_stdout = $stdout
+      original_stderr = $stderr
+      $stdout = StringIO.new
+      $stderr = StringIO.new
+      begin
+        example.run
+      ensure
+        $stdout = original_stdout
+        $stderr = original_stderr
+        File.delete(log_failing_files) if File.exist?(log_failing_files)
+      end
     end
 
     before(:each) do

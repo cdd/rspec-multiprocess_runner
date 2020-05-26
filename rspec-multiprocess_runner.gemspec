@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", ">= 1.10"
   spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "byebug", "<11" if RUBY_VERSION.to_f < 2.4
   spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "stub_env"
 end
