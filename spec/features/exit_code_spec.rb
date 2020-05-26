@@ -11,7 +11,7 @@ describe 'Exit code' do
   end
 
   subject(:exit_code) do
-    Process.wait spawn(command, %i(out err) => '/dev/null')
+    Process.wait spawn(command, out: '/dev/null', err: '/dev/null')
     $?.exitstatus
   end
 
