@@ -29,6 +29,7 @@ module RSpec::MultiprocessRunner
 
     STATUS_EXAMPLE_COMPLETE = "example_complete"
     STATUS_RUN_COMPLETE = "run_complete"
+    ERROR_RUNNING = "error_running"
 
     def initialize(environment_number, options)
       @environment_number = environment_number
@@ -196,6 +197,10 @@ module RSpec::MultiprocessRunner
         end
         $stdout.puts "#{environment_number} (#{pid}): #{message_hash["description"]} (#{location})#{suffix}"
         @current_example_started_at = Time.now
+      when ERROR_RUNNING
+        example_results << Result.new(message_hash)
+        $stdout.puts "Error in file: #{message_hash["filename"]}"
+        $stdout.print message_hash["message"]
       else
         $stderr.puts "Received unsupported status #{message_hash["status"].inspect} in worker #{pid}"
       end
@@ -219,7 +224,15 @@ module RSpec::MultiprocessRunner
         description: description,
         line_number: line_number,
         details: details,
-        filename: @current_file
+        filename: @current_file,
+      )
+    end
+
+    def report_error(message)
+      send_message_to_coordinator(
+        status: ERROR_RUNNING,
+        message: message,
+        filename: @current_file,
       )
     end
 
@@ -281,8 +294,9 @@ module RSpec::MultiprocessRunner
       RSpec.world.example_groups.clear
 
       ReportingFormatter.worker = self
-      RSpec::Core::Runner.run(@rspec_arguments + [spec_file])
-      raise "Error outside of tests on #{spec_file}" if RSpec.world.non_example_failure
+      error_stream = StringIO.new
+      output_stream = StringIO.new
+      RSpec::Core::Runner.run(@rspec_arguments + [spec_file], error_stream, output_stream)
       send_message_to_coordinator(status: STATUS_RUN_COMPLETE, filename: spec_file)
     ensure
       @current_file = nil
@@ -323,7 +337,7 @@ module RSpec::MultiprocessRunner
 
   # @private
   class Result
-    attr_reader :run_status, :status, :description, :details, :filename, :time_finished
+    attr_reader :description, :details, :filename, :message, :run_status, :status, :time_finished
 
     def initialize(complete_message, time = Time.now)
       @hash = complete_message
@@ -332,6 +346,7 @@ module RSpec::MultiprocessRunner
       @description = complete_message["description"]
       @details = complete_message["details"]
       @filename = complete_message["filename"]
+      @message = complete_message["message"]
       @time_finished = time
     end
 

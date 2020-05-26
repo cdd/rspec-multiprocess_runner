@@ -39,6 +39,12 @@ describe 'Exit code' do
     it { is_expected.to eq(2) }
   end
 
+  context 'on empty file' do
+    let(:files) { 'spec/files/empty.rb' }
+
+    it { is_expected.to eq(0) }
+  end
+
   context 'on process failures' do
     let(:files) { 'spec/files/syntax_error.rb' }
 
