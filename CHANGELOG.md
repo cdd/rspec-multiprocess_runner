@@ -1,3 +1,5 @@
+# 1.4.3
+
 # 1.4.2
 
 * Add better logging for errors that occur outside of tests
