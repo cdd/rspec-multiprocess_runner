@@ -16,6 +16,10 @@ test: $(VERSIONS) ## Run tests for every ruby version
 clean: ## cleans up the images
 	docker rmi -f $(VERSIONS:%=mpr.%)
 
+release: $(word $(words $(VERSIONS)), $(VERSIONS)) ## release the gem from in here
+	docker run -it -v $(PWD):/tmp/src -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v ~/.gem:/root/.gem \
+		-w /tmp/src	mpr.$(word $(words $(VERSIONS)), $(VERSIONS)) ./docker_release.sh
+
 .PHONY: help
 
 help: ## https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
