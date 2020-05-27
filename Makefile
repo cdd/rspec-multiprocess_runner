@@ -7,6 +7,7 @@ $(VERSIONS): ## Make an image using this ruby version
 	docker run mpr.$<
 
 test: $(VERSIONS) ## Run tests for every ruby version
+	# build the images in parallel and then run the tests one at a time afterward
 	$(MAKE) -j1 $(VERSIONS:%=%.test)
 
 %.shell: % ## Run a shell in the ruby version
