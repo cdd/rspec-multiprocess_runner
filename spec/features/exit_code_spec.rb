@@ -11,7 +11,7 @@ describe 'Exit code' do
   end
 
   subject(:exit_code) do
-    Process.wait spawn(command, %i(out err) => '/dev/null')
+    Process.wait spawn(command, out: '/dev/null', err: '/dev/null')
     $?.exitstatus
   end
 
@@ -37,6 +37,12 @@ describe 'Exit code' do
     let(:files) { 'spec/files/successful.rb spec/files/valid_but_broken.rb' }
 
     it { is_expected.to eq(2) }
+  end
+
+  context 'on empty file' do
+    let(:files) { 'spec/files/empty.rb' }
+
+    it { is_expected.to eq(0) }
   end
 
   context 'on process failures' do

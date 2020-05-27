@@ -59,6 +59,13 @@ module RSpec::MultiprocessRunner
       )
     end
 
+    def message(struct)
+      message = struct.message
+      return if message =~ /^No examples found./
+
+      worker.report_error(message)
+    end
+
     private
 
     def capture_output

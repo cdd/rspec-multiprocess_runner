@@ -1,5 +1,10 @@
 # 1.4.2
 
+* Add better logging for errors that occur outside of tests
+* Add docker tests for all current ruby versions and more ruby versions to test in
+* Fix some minor bugs that caused incorrect error codes (still failure codes)
+* Fixed the error code spec file
+
 # 1.4.1
 
 * Fix file coordinator helpers failing due to unknown method on command line args

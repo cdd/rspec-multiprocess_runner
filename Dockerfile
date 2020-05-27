@@ -5,10 +5,9 @@
 #
 # For development:
 # docker run -it -v $PWD:/tmp/src -w /tmp/src mpr bash
-FROM ruby:2.6
+ARG VERSION
+FROM ruby:${VERSION}
 LABEL maintainer="cdd.com"
-
-RUN gem update bundler
 
 WORKDIR /app
 
