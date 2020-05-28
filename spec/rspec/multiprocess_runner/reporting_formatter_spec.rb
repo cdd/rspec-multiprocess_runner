@@ -11,6 +11,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
 
   before(:each) do
     allow(worker).to receive(:report_example_result).and_return(nil)
+    allow(worker).to receive(:report_error).and_return(nil)
     RSpec::MultiprocessRunner::ReportingFormatter.worker = worker
 
     reporter.register_listener formatter,
@@ -43,7 +44,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:passed, "example group·with details·passes", 33, anything)
+        with(:passed, "example group·with details·passes", 34, anything)
     end
   end
 
@@ -64,7 +65,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:failed, "example group·with details·fails", 54, anything)
+        with(:failed, "example group·with details·fails", 55, anything)
     end
 
     it "sends the formatted details also" do
@@ -102,7 +103,7 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
       # N.b.: the line number is in this actual file — it will change if you
       # insert anything above this example group
       expect(worker).to have_received(:report_example_result).
-        with(:pending, "example group·with details·is not implemented yet", 92, anything)
+        with(:pending, "example group·with details·is not implemented yet", 93, anything)
     end
 
     it "sends the formatted details also" do
@@ -110,6 +111,34 @@ describe RSpec::MultiprocessRunner::ReportingFormatter do
         :pending, anything, anything,
         /not implemented/
       )
+    end
+  end
+
+  describe "when it receives a message" do
+    def subject(message, non_example_failure)
+      RSpec.world.non_example_failure = non_example_failure
+      formatter.message(Struct.new(:message).new(message))
+    ensure
+      RSpec.world.non_example_failure = false
+    end
+
+    context "and there was no error outside the specs" do
+      it "does nothing" do
+        subject("something innocuous", false)
+        expect(worker).to_not have_received(:report_error)
+      end
+    end
+
+    context "and there was an error outside the specs" do
+      it "sends the worker the error" do
+        subject("something erroneous", true)
+        expect(worker).to have_received(:report_error).with("something erroneous")
+      end
+
+      it "does nothing if the message is about an empty file (these occur after errors)" do
+        subject("No examples found.", true)
+        expect(worker).to_not have_received(:report_error)
+      end
     end
   end
 end

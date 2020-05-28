@@ -5,7 +5,7 @@ CONTROL_PATH=$(grep ControlPath /root/.ssh/config | awk '{ print $2 }' | xargs d
 mkdir -p ${CONTROL_PATH/#~/$HOME}
 
 # use the most modern bundle available to allow OTP
-gem install bundle
+gem install bundler
 bundle update --bundler
 
 bash
