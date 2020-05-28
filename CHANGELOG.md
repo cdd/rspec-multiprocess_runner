@@ -1,5 +1,8 @@
 # 1.4.3
 
+* New 1.4.2 logging is less aggressive and should only show errors now
+* Adds a docker container for releasing
+
 # 1.4.2
 
 * Add better logging for errors that occur outside of tests
