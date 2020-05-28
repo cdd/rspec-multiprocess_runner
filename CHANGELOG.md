@@ -1,3 +1,5 @@
+# 1.4.4
+
 # 1.4.3
 
 * New 1.4.2 logging is less aggressive and should only show errors now
