@@ -3,10 +3,12 @@ VERSIONS= $(shell grep '  - ' .travis.yml | cut -d- -f2)
 $(VERSIONS): ## Make an image using this ruby version
 	docker build --build-arg VERSION=$@ -t mpr.$@ .
 
+latest: $(word $(words $(VERSIONS)), $(VERSIONS)) ## Make an image using the latest ruby in VERSIONS
+
 %.test: % ## Run tests for the ruby version
 	docker run mpr.$<
 
-test: $(VERSIONS) ## Run tests for every ruby version
+test tests: $(VERSIONS) ## Run tests for every ruby version
 	# build the images in parallel and then run the tests one at a time afterward
 	$(MAKE) -j1 $(VERSIONS:%=%.test)
 
@@ -16,7 +18,7 @@ test: $(VERSIONS) ## Run tests for every ruby version
 clean: ## cleans up the images
 	docker rmi -f $(VERSIONS:%=mpr.%)
 
-release: $(word $(words $(VERSIONS)), $(VERSIONS)) ## release the gem from in here
+release: latest ## release the gem from in here
 	docker run -it -v $(PWD):/tmp/src -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v ~/.gem:/root/.gem \
 		-w /tmp/src	mpr.$(word $(words $(VERSIONS)), $(VERSIONS)) ./docker_release.sh
 

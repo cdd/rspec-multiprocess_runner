@@ -60,7 +60,11 @@ module RSpec::MultiprocessRunner
     end
 
     def message(struct)
+      # this is just for reporting errors not otherwise reported
+      return unless RSpec.world.non_example_failure
+
       message = struct.message
+      # skip these as they always come after an error is seems
       return if message =~ /^No examples found./
 
       worker.report_error(message)

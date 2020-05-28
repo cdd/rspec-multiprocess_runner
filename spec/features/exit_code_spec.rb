@@ -45,6 +45,12 @@ describe 'Exit code' do
     it { is_expected.to eq(0) }
   end
 
+  context 'when a message other than an error comes through' do
+    let(:files) { 'spec/files/focus.rb' }
+
+    it { is_expected.to eq(0) }
+  end
+
   context 'on process failures' do
     let(:files) { 'spec/files/syntax_error.rb' }
 
